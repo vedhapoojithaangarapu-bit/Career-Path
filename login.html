@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description"
+        content="Secure B.Tech student login portal. Sign in with your Gmail to access the student dashboard." />
+    <title>B.Tech Student Login Portal</title>
+
+    <!-- Google Font: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- Theme Toggle -->
+    <button id="themeToggle" class="theme-toggle" aria-label="Toggle light/dark mode">
+        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path
+                d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm0 8a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm-1-13h2v3h-2zm0 18h2v3h-2zm-8.485-3.05 2.121-2.122 1.414 1.415-2.122 2.121zm14.142-14.142 2.121-2.122 1.414 1.415-2.122 2.121zM2 11h3v2H2zm18 0h3v2h-3zM5.636 5.636l1.414 1.414-2.121 2.121-1.414-1.414zM16.243 16.243l1.414 1.414-2.121 2.121-1.414-1.414z" />
+        </svg>
+        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path
+                d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26 5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z" />
+        </svg>
+    </button>
+
+    <!-- Animated background blobs -->
+    <div class="bg-blob blob-1" aria-hidden="true"></div>
+    <div class="bg-blob blob-2" aria-hidden="true"></div>
+    <div class="bg-blob blob-3" aria-hidden="true"></div>
+
+    <main class="login-wrapper" role="main">
+        <div class="login-card" id="loginCard">
+
+            <!-- Logo / Brand -->
+            <div class="brand">
+                <div class="brand-icon" aria-hidden="true">🎓</div>
+                <h1 class="brand-title">Student Portal</h1>
+            </div>
+
+            <!-- Divider -->
+            <div class="divider" aria-hidden="true"></div>
+
+            <!-- Login Form -->
+            <form onsubmit="redirectToDashboard(event)" id="loginForm" novalidate aria-label="Student login form">
+
+                <!-- Gmail Field -->
+                <div class="form-group">
+                    <label for="gmail" class="form-label">Gmail Address</label>
+                    <div class="input-wrapper">
+                        <!-- Gmail icon -->
+                        <span class="input-icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18"
+                                height="18">
+                                <path
+                                    d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z" />
+                            </svg>
+                        </span>
+                        <input type="email" id="gmail" name="gmail" class="form-input" placeholder="yourname@gmail.com"
+                            autocomplete="email" required aria-required="true" aria-describedby="gmail-error" />
+                    </div>
+                    <!-- Inline error message -->
+                    <span class="error-msg" id="gmail-error" role="alert" aria-live="polite"></span>
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-wrapper">
+                        <!-- Lock icon -->
+                        <span class="input-icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18"
+                                height="18">
+                                <path
+                                    d="M18 8h-1V6A5 5 0 0 0 7 6v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zm-6 9a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm3.1-9H8.9V6a3.1 3.1 0 0 1 6.2 0v2z" />
+                            </svg>
+                        </span>
+                        <input type="password" id="password" name="password" class="form-input"
+                            placeholder="Enter your password" autocomplete="current-password" required
+                            aria-required="true" aria-describedby="password-error" />
+                        <!-- Toggle password visibility -->
+                        <button type="button" id="togglePassword" class="toggle-password"
+                            aria-label="Toggle password visibility" title="Show / Hide password">
+                            <!-- Eye icon (visible state) -->
+                            <svg id="eyeOpen" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                width="18" height="18">
+                                <path
+                                    d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5C21.27 7.61 17 4.5 12 4.5zm0 12.5a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" />
+                            </svg>
+                            <!-- Eye-slash icon (hidden state) -->
+                            <svg id="eyeClosed" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                fill="currentColor" width="18" height="18" style="display:none;">
+                                <path
+                                    d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46A11.804 11.804 0 0 0 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78 3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <span class="error-msg" id="password-error" role="alert" aria-live="polite"></span>
+                </div>
+
+                <!-- Remember me + Forgot password row -->
+                <div class="form-options">
+                    <label class="remember-label" for="remember">
+                        <input type="checkbox" id="remember" name="remember" />
+                        <span class="checkmark" aria-hidden="true"></span>
+                        Remember me
+                    </label>
+                    <a href="#" class="forgot-link" id="forgotLink">Forgot password?</a>
+                </div>
+
+                <!-- Submit button -->
+                <button type="submit" class="btn-login" id="loginBtn">
+                    <span class="btn-text">Sign In</span>
+                    <span class="btn-spinner" id="btnSpinner" aria-hidden="true"></span>
+                </button>
+
+                <!-- Global form alert (success / error) -->
+                <div class="form-alert" id="formAlert" role="alert" aria-live="assertive"></div>
+
+            </form>
+
+            <!-- Footer note -->
+            <p class="card-footer-note">
+                Only <strong>@gmail.com</strong> addresses are accepted.<br />
+                Contact your department for access issues.
+            </p>
+
+        </div><!-- /.login-card -->
+    </main>
+
+    <script>
+        function redirectToDashboard(event) {
+            event.preventDefault(); // stop form refresh
+
+            // optional: simple validation check
+            const email = document.getElementById("gmail").value;
+            const password = document.getElementById("password").value;
+
+            if (email === "" || password === "") {
+                alert("Please fill all fields");
+                return;
+            }
+
+            // ✅ redirect
+            window.location.href = "dashboard.html";
+        }
+
+        /**
+ * script.js — B.Tech Student Login Portal
+ *
+ * Features:
+ *   • Real-time Gmail field validation (must be @gmail.com)
+ *   • Password strength validation (min 8 chars)
+ *   • Toggle show/hide password
+ *   • Loading spinner on submit
+ *   • Simulated async login with success/error feedback
+ *   • "Forgot password" modal-style alert
+ *   • LocalStorage "Remember me" support
+ *   • Accessible: aria-live announcements, focus management
+ */
+
+        'use strict';
+
+        /* ── DOM References ─────────────────────────────────────── */
+        const loginForm = document.getElementById('loginForm');
+        const gmailInput = document.getElementById('gmail');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const togglePasswordBtn = document.getElementById('togglePassword');
+        const themeToggle = document.getElementById('themeToggle');
+        const eyeOpen = document.getElementById('eyeOpen');
+        const eyeClosed = document.getElementById('eyeClosed');
+        const formAlert = document.getElementById('formAlert');
+        const forgotLink = document.getElementById('forgotLink');
+        const rememberCheck = document.getElementById('remember');
+
+        /* ── Utility: Show / Clear inline field errors ───────────── */
+
+        /**
+         * Marks a field as invalid and shows an accessible error message.
+         * @param {HTMLInputElement} input  - The input element
+         * @param {string}           msg   - Error text to display
+         */
+        function showFieldError(input, msg) {
+            const errorEl = document.getElementById(input.getAttribute('aria-describedby'));
+            input.classList.add('input-error');
+            input.setAttribute('aria-invalid', 'true');
+            if (errorEl) {
+                errorEl.textContent = msg;
+                errorEl.classList.add('visible');
+            }
+        }
+
+        /**
+         * Removes the error state from a field.
+         * @param {HTMLInputElement} input - The input element
+         */
+        function clearFieldError(input) {
+            const errorEl = document.getElementById(input.getAttribute('aria-describedby'));
+            input.classList.remove('input-error');
+            input.removeAttribute('aria-invalid');
+            if (errorEl) {
+                errorEl.textContent = '';
+                errorEl.classList.remove('visible');
+            }
+        }
+
+        /* ── Utility: Show / Clear form-level alert banner ──────── */
+
+        /**
+         * Displays the global alert banner.
+         * @param {string} message - Text to show
+         * @param {'success'|'error'} type - Style variant
+         */
+        function showAlert(message, type) {
+            formAlert.textContent = message;
+            formAlert.className = `form-alert alert-${type}`;
+        }
+
+        /** Hides the global alert banner. */
+        function clearAlert() {
+            formAlert.textContent = '';
+            formAlert.className = 'form-alert';
+        }
+
+        /* ── Validation Rules ────────────────────────────────────── */
+
+        /**
+         * Validates the Gmail field.
+         * Rules: non-empty, valid email format, must end with @gmail.com
+         * @returns {boolean} true if valid
+         */
+        function validateGmail() {
+            const value = gmailInput.value.trim();
+
+            if (!value) {
+                showFieldError(gmailInput, 'Gmail address is required.');
+                return false;
+            }
+
+            // Basic email format check
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                showFieldError(gmailInput, 'Please enter a valid email address.');
+                return false;
+            }
+
+            // Must be a Gmail domain (case-insensitive)
+            if (!value.toLowerCase().endsWith('@gmail.com')) {
+                showFieldError(gmailInput, 'Only @gmail.com addresses are allowed.');
+                return false;
+            }
+
+            clearFieldError(gmailInput);
+            return true;
+        }
+
+        /**
+         * Validates the Password field.
+         * Rules: non-empty, minimum 8 characters.
+         * @returns {boolean} true if valid
+         */
+        function validatePassword() {
+            const value = passwordInput.value;
+
+            if (!value) {
+                showFieldError(passwordInput, 'Password is required.');
+                return false;
+            }
+
+            if (value.length < 8) {
+                showFieldError(passwordInput, 'Password must be at least 8 characters long.');
+                return false;
+            }
+
+            clearFieldError(passwordInput);
+            return true;
+        }
+
+        /* ── Real-time Validation (on blur / input) ──────────────── */
+
+        // Validate Gmail when user leaves the field
+        gmailInput.addEventListener('blur', validateGmail);
+
+        // Clear error as user starts typing again
+        gmailInput.addEventListener('input', () => {
+            if (gmailInput.classList.contains('input-error')) {
+                clearFieldError(gmailInput);
+            }
+            clearAlert();
+        });
+
+        // Validate password on blur
+        passwordInput.addEventListener('blur', validatePassword);
+
+        // Clear error as user types
+        passwordInput.addEventListener('input', () => {
+            if (passwordInput.classList.contains('input-error')) {
+                clearFieldError(passwordInput);
+            }
+            clearAlert();
+        });
+
+        /* ── Password Visibility Toggle ──────────────────────────── */
+        togglePasswordBtn.addEventListener('click', () => {
+            const isHidden = passwordInput.type === 'password';
+
+            // Switch input type
+            passwordInput.type = isHidden ? 'text' : 'password';
+
+            // Swap icons
+            eyeOpen.style.display = isHidden ? 'none' : 'block';
+            eyeClosed.style.display = isHidden ? 'block' : 'none';
+
+            // Update accessible label
+            togglePasswordBtn.setAttribute(
+                'aria-label',
+                isHidden ? 'Hide password' : 'Show password'
+            );
+
+            // Return focus to password field
+            passwordInput.focus();
+        });
+
+        /* ── Remember Me: restore saved email on page load ──────── */
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedEmail = localStorage.getItem('btech_remembered_email');
+            if (savedEmail) {
+                gmailInput.value = savedEmail;
+                rememberCheck.checked = true;
+            }
+        });
+
+        /* ── Simulated Authentication ────────────────────────────── */
+
+        /**
+         * Mock async login function.
+         * Replace this with a real fetch/axios call to your backend API.
+         *
+         * @param {string} email    - User's Gmail
+         * @param {string} password - User's password
+         * @returns {Promise<{ok: boolean, message: string}>}
+         */
+        function simulateLogin(email, password) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    /*
+                     * ── DEMO CREDENTIALS ────────────────────────────────
+                     * Replace with actual API authentication logic.
+                     * Example with fetch:
+                     *
+                     * const res = await fetch('/api/login', {
+                     *   method: 'POST',
+                     *   headers: { 'Content-Type': 'application/json' },
+                     *   body: JSON.stringify({ email, password }),
+                     * });
+                     * const data = await res.json();
+                     * ────────────────────────────────────────────────── */
+
+                    // Demo: accept any @gmail.com with password ≥ 8 chars
+                    if (email.toLowerCase().endsWith('@gmail.com') && password.length >= 8) {
+                        resolve({ ok: true, message: '✅ Login successful! Redirecting to dashboard…' });
+                    } else {
+                        resolve({ ok: false, message: '❌ Incorrect credentials. Please try again.' });
+                    }
+                }, 1800); // simulate 1.8s network delay
+            });
+        }
+
+        /* ── Form Submit Handler ─────────────────────────────────── */
+        loginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            clearAlert();
+
+            // Run all validations; abort if any fail
+            const isGmailValid = validateGmail();
+            const isPasswordValid = validatePassword();
+
+            if (!isGmailValid || !isPasswordValid) {
+                // Focus the first invalid field for accessibility
+                if (!isGmailValid) {
+                    gmailInput.focus();
+                } else {
+                    passwordInput.focus();
+                }
+                return;
+            }
+
+            // ── Loading state ──
+            loginBtn.classList.add('loading');
+            loginBtn.disabled = true;
+            loginBtn.querySelector('.btn-text').textContent = 'Signing in…';
+
+            try {
+                const email = gmailInput.value.trim();
+                const password = passwordInput.value;
+
+                // Save or clear remembered email
+                if (rememberCheck.checked) {
+                    localStorage.setItem('btech_remembered_email', email);
+                } else {
+                    localStorage.removeItem('btech_remembered_email');
+                }
+
+                // Call simulated (or real) login
+                const result = await simulateLogin(email, password);
+
+                if (result.ok) {
+                    showAlert(result.message, 'success');
+                    // Clear the form on success
+                    loginForm.reset();
+                    clearFieldError(gmailInput);
+                    clearFieldError(passwordInput);
+
+                    /*
+                     * ── Redirect after success ───────────────────────────
+                     * Replace '#' with your actual dashboard URL, e.g.:
+                     *   window.location.href = '/dashboard';
+                     * ──────────────────────────────────────────────────── */
+                    // window.location.href = '/dashboard';
+                } else {
+                    showAlert(result.message, 'error');
+                    // Shake the card for tactile error feedback
+                    shakeCard();
+                }
+            } catch (err) {
+                // Network or unexpected error
+                showAlert('⚠️ A network error occurred. Please check your connection.', 'error');
+                console.error('[Login Error]', err);
+            } finally {
+                // ── Reset loading state ──
+                loginBtn.classList.remove('loading');
+                loginBtn.disabled = false;
+                loginBtn.querySelector('.btn-text').textContent = 'Sign In';
+            }
+        });
+
+        /* ── Card Shake Animation (on error) ─────────────────────── */
+
+        /**
+         * Briefly shakes the login card to indicate a login failure.
+         * Uses the Web Animations API for lightweight performance.
+         */
+        function shakeCard() {
+            const card = document.getElementById('loginCard');
+            card.animate(
+                [
+                    { transform: 'translateX(0)' },
+                    { transform: 'translateX(-8px)' },
+                    { transform: 'translateX(8px)' },
+                    { transform: 'translateX(-6px)' },
+                    { transform: 'translateX(6px)' },
+                    { transform: 'translateX(-3px)' },
+                    { transform: 'translateX(0)' },
+                ],
+                { duration: 420, easing: 'ease-in-out' }
+            );
+        }
+
+        /* ── Forgot Password Handler ─────────────────────────────── */
+        forgotLink.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            const email = gmailInput.value.trim();
+
+            if (email && email.toLowerCase().endsWith('@gmail.com')) {
+                showAlert(
+                    `📧 A password reset link has been sent to ${email}. Check your inbox.`,
+                    'success'
+                );
+            } else {
+                // Prompt user to fill in their Gmail first
+                showAlert('Please enter your @gmail.com address above first.', 'error');
+                gmailInput.focus();
+            }
+        });
+
+        /* ── Theme Toggle Logic ──────────────────────────────────── */
+
+        const rootElement = document.documentElement;
+
+        function setTheme(theme) {
+            rootElement.setAttribute('data-theme', theme);
+            localStorage.setItem('btech_theme', theme);
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('btech_theme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else {
+            // Check system preference
+            const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+            setTheme(prefersLight ? 'light' : 'dark');
+        }
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = rootElement.getAttribute('data-theme') || 'dark';
+                setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+            });
+
+        }
+
+    </script>
+</body>
+
+</html>

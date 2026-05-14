@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internship Opportunities</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.8rem;
+            color: #1a202c;
+            margin-bottom: 40px;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .menu button {
+            padding: 12px 24px;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(118, 75, 162, 0.3);
+        }
+
+        .menu button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(118, 75, 162, 0.4);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+
+        #container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 25px;
+            border-radius: 18px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 20px;
+            color: #2d3748;
+            line-height: 1.4;
+            font-weight: 600;
+        }
+
+        .view {
+            margin-top: auto;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(79, 172, 254, 0.3);
+            align-self: flex-start;
+        }
+
+        .view:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .details {
+            display: none;
+            margin-top: 20px;
+            background-color: rgba(247, 250, 252, 0.9);
+            padding: 18px;
+            border-radius: 12px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            font-size: 0.95rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .details p {
+            margin-bottom: 12px;
+            color: #4a5568;
+            line-height: 1.5;
+        }
+
+        .details p b {
+            color: #2d3748;
+        }
+
+        .details p:last-child {
+            margin-bottom: 0;
+        }
+
+        .details a {
+            color: #3182ce;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .details a:hover {
+            text-decoration: underline;
+            color: #2b6cb0;
+        }
+
+        .card {
+            animation: slideUpFade 0.4s ease forwards;
+        }
+
+        @keyframes slideUpFade {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .menu button.active {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            box-shadow: 0 6px 15px rgba(56, 239, 125, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .controls-container {
+            position: static;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(15px);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+            margin: 0 auto 40px auto;
+            max-width: 900px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .search-wrap {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .search-wrap input {
+            width: 100%;
+            max-width: 600px;
+            padding: 15px 25px;
+            border-radius: 30px;
+            border: 1px solid rgba(209, 213, 219, 0.8);
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+            font-family: 'Inter', sans-serif;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .search-wrap input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+            background: #fff;
+        }
+
+        /* THEME OVERRIDES */
+        :root {
+            --bg-grad: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
+            --text-main: #333;
+            --text-muted: #4a5568;
+            --heading: #1a202c;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-border: rgba(255, 255, 255, 0.4);
+            --controls-bg: rgba(255, 255, 255, 0.75);
+            --input-bg: rgba(255, 255, 255, 0.9);
+            --input-border: rgba(209, 213, 219, 0.8);
+            --details-bg: rgba(247, 250, 252, 0.9);
+            --details-border: rgba(226, 232, 240, 0.8);
+            --btn-glow: rgba(56, 239, 125, 0.4);
+            --dash-border: #cbd5e0;
+        }
+
+        body.dark-mode {
+            --bg-grad: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --heading: #f8fafc;
+            --card-bg: rgba(30, 41, 59, 0.85);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --controls-bg: rgba(15, 23, 42, 0.75);
+            --input-bg: #0f172a;
+            --input-border: #334155;
+            --details-bg: rgba(15, 23, 42, 0.9);
+            --details-border: rgba(51, 65, 85, 0.8);
+            --btn-glow: rgba(56, 239, 125, 0.3);
+            --dash-border: #475569;
+        }
+
+        body {
+            background: var(--bg-grad) !important;
+            color: var(--text-main) !important;
+            transition: background 0.5s ease, color 0.5s ease;
+            animation: pageLoad 0.8s ease-out forwards;
+        }
+
+        @keyframes pageLoad {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40px;
+            position: relative;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h1 {
+            color: var(--heading) !important;
+            margin-bottom: 0 !important;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            right: 20px;
+            background: var(--controls-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+        }
+
+        .controls-container {
+            background: var(--controls-bg) !important;
+            border: 1px solid var(--card-border) !important;
+        }
+
+        .search-wrap input {
+            background: var(--input-bg) !important;
+            color: var(--text-main) !important;
+            border: 1px solid var(--input-border) !important;
+        }
+
+        .menu button {
+            background: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .menu button.active {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+            color: white !important;
+            box-shadow: 0 6px 15px var(--btn-glow) !important;
+            border: none;
+        }
+
+        .card {
+            background: var(--card-bg) !important;
+            border: 1px solid var(--card-border) !important;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, background 0.4s ease !important;
+        }
+
+        .card:hover {
+            transform: translateY(-8px) scale(1.02) !important;
+        }
+
+        .card h3 {
+            color: var(--heading) !important;
+        }
+
+        .card>p {
+            color: var(--text-muted) !important;
+        }
+
+        .view {
+            position: relative;
+            overflow: visible;
+        }
+
+        .view::after {
+            content: "Click to see more!";
+            position: absolute;
+            bottom: 130%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--heading);
+            color: var(--card-bg);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, bottom 0.3s ease;
+            white-space: nowrap;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        .view:hover::after {
+            opacity: 1;
+            bottom: 140%;
+        }
+
+        .details {
+            background-color: var(--details-bg) !important;
+            border: 1px solid var(--details-border) !important;
+            color: var(--text-main) !important;
+        }
+
+        .details p {
+            color: var(--text-muted) !important;
+        }
+
+        .details p b {
+            color: var(--heading) !important;
+        }
+
+        .details a {
+            color: #3b82f6 !important;
+        }
+
+        .dark-mode .details a {
+            color: #60a5fa !important;
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 2px dashed var(--dash-border);
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-anim 0.6s linear;
+            background-color: rgba(255, 255, 255, 0.4);
+            pointer-events: none;
+        }
+
+        @keyframes ripple-anim {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header-top">
+        <h1>Internship Opportunities</h1>
+    </div>
+
+    <div class="controls-container">
+        <div class="search-wrap">
+            <input type="text" id="searchInput" placeholder="Search internships by title or company..."
+                onkeyup="handleFilter()">
+        </div>
+        <div class="menu" id="filterMenu">
+            <button class="active" onclick="setFilter('all', this)">🌐 All</button>
+            <button onclick="setFilter('paid', this)">💰 Paid</button>
+            <button onclick="setFilter('unpaid', this)">🤝 Unpaid</button>
+            <button onclick="setFilter('remote', this)">🏠 Remote</button>
+        </div>
+    </div>
+
+    <div id="container"></div>
+
+    <script>
+        function toggleDetails(id) {
+            let x = document.getElementById(id);
+            x.style.display = (x.style.display === "block") ? "none" : "block";
+        }
+
+        const internships = [
+
+            /* PAID (15) */
+            { title: "Software Engineering Intern", company: "Google", type: ["paid", "remote"], docs: "Resume", date: "Apr 30", link: "https://careers.google.com" },
+            { title: "Data Science Intern", company: "Microsoft", type: ["paid"], docs: "Projects", date: "May 10", link: "https://careers.microsoft.com" },
+            { title: "Cloud Intern", company: "Amazon", type: ["paid"], docs: "Resume", date: "May 5", link: "https://amazon.jobs" },
+            { title: "AI Intern", company: "Infosys", type: ["paid"], docs: "Projects", date: "Apr 25", link: "#" },
+            { title: "Web Developer Intern", company: "TCS", type: ["paid"], docs: "GitHub", date: "May 15", link: "#" },
+            { title: "Cyber Security Intern", company: "Wipro", type: ["paid"], docs: "Resume", date: "Apr 20", link: "#" },
+            { title: "App Developer Intern", company: "Flipkart", type: ["paid"], docs: "GitHub", date: "Apr 18", link: "#" },
+            { title: "Backend Intern", company: "Zoho", type: ["paid"], docs: "Projects", date: "May 1", link: "#" },
+            { title: "Frontend Intern", company: "HCL", type: ["paid"], docs: "Portfolio", date: "May 6", link: "#" },
+            { title: "DevOps Intern", company: "IBM", type: ["paid"], docs: "Resume", date: "May 8", link: "#" },
+            { title: "Finance Intern", company: "Deloitte", type: ["paid"], docs: "Resume", date: "May 18", link: "#" },
+            { title: "Marketing Intern", company: "Accenture", type: ["paid"], docs: "Resume", date: "May 12", link: "#" },
+            { title: "UI/UX Intern", company: "Capgemini", type: ["paid"], docs: "Portfolio", date: "Apr 22", link: "#" },
+            { title: "Business Analyst Intern", company: "KPMG", type: ["paid"], docs: "Resume", date: "Apr 28", link: "#" },
+            { title: "QA Intern", company: "Tech Mahindra", type: ["paid"], docs: "Resume", date: "May 3", link: "#" },
+
+
+            /* UNPAID (15) */
+            { title: "Content Writer Intern", company: "StartupHub", type: ["unpaid"], docs: "Samples", date: "Apr 15", link: "#" },
+            { title: "Social Media Intern", company: "MediaWorks", type: ["unpaid"], docs: "Resume", date: "Apr 20", link: "#" },
+            { title: "Graphic Designer Intern", company: "Creative Studio", type: ["unpaid"], docs: "Portfolio", date: "Apr 18", link: "#" },
+            { title: "HR Intern", company: "PeopleFirst", type: ["unpaid"], docs: "Resume", date: "Apr 22", link: "#" },
+            { title: "Research Intern", company: "EduTech", type: ["unpaid"], docs: "Resume", date: "Apr 25", link: "#" },
+            { title: "Event Intern", company: "EventPro", type: ["unpaid"], docs: "Resume", date: "Apr 28", link: "#" },
+            { title: "Teaching Assistant", company: "LearnHub", type: ["unpaid"], docs: "Resume", date: "May 1", link: "#" },
+            { title: "NGO Intern", company: "HelpingHands", type: ["unpaid"], docs: "Resume", date: "May 3", link: "#" },
+            { title: "Blog Writer", company: "Blogify", type: ["unpaid"], docs: "Samples", date: "May 5", link: "#" },
+            { title: "Campus Ambassador", company: "EduBrand", type: ["unpaid"], docs: "Resume", date: "May 6", link: "#" },
+            { title: "Video Editor Intern", company: "MediaHouse", type: ["unpaid"], docs: "Portfolio", date: "May 7", link: "#" },
+            { title: "Assistant Intern", company: "OfficePro", type: ["unpaid"], docs: "Resume", date: "May 8", link: "#" },
+            { title: "Volunteer Intern", company: "NGO Care", type: ["unpaid"], docs: "Resume", date: "May 9", link: "#" },
+            { title: "PR Intern", company: "PR Solutions", type: ["unpaid"], docs: "Resume", date: "May 10", link: "#" },
+            { title: "Operations Intern", company: "BizOps", type: ["unpaid"], docs: "Resume", date: "May 12", link: "#" },
+
+
+            /* REMOTE (15) */
+            { title: "Remote Web Developer Intern", company: "TechCorp", type: ["remote"], docs: "GitHub", date: "Apr 18", link: "https://internshala.com" },
+            { title: "Remote Data Analyst Intern", company: "DataX", type: ["remote"], docs: "Projects", date: "May 1", link: "https://indeed.com" },
+            { title: "Remote UI Designer Intern", company: "DesignPro", type: ["remote"], docs: "Portfolio", date: "Apr 22", link: "#" },
+            { title: "Remote ML Intern", company: "AI Labs", type: ["remote"], docs: "Projects", date: "May 3", link: "#" },
+            { title: "Remote Content Writer", company: "WriteNow", type: ["remote"], docs: "Samples", date: "Apr 25", link: "#" },
+            { title: "Remote HR Intern", company: "HR Tech", type: ["remote"], docs: "Resume", date: "Apr 28", link: "#" },
+            { title: "Remote Marketing Intern", company: "Marketify", type: ["remote"], docs: "Resume", date: "May 12", link: "#" },
+            { title: "Remote Graphic Designer", company: "Pixel Studio", type: ["remote"], docs: "Portfolio", date: "May 1", link: "#" },
+            { title: "Remote App Developer", company: "Appify", type: ["remote"], docs: "GitHub", date: "Apr 19", link: "#" },
+            { title: "Remote Cloud Intern", company: "CloudNet", type: ["remote"], docs: "Resume", date: "May 6", link: "#" },
+            { title: "Remote DevOps Intern", company: "DevCloud", type: ["remote"], docs: "Resume", date: "Apr 24", link: "#" },
+            { title: "Remote Cyber Security", company: "SecureIT", type: ["remote"], docs: "Resume", date: "May 8", link: "#" },
+            { title: "Remote Finance Intern", company: "FinServe", type: ["remote"], docs: "Resume", date: "May 18", link: "#" },
+            { title: "Remote SEO Intern", company: "SEO Boost", type: ["remote"], docs: "Resume", date: "Apr 20", link: "#" },
+            { title: "Remote Support Intern", company: "HelpDesk", type: ["remote"], docs: "Resume", date: "Apr 21", link: "#" }
+        ];
+
+        const container = document.getElementById("container");
+
+        function displayInternships(list) {
+            container.innerHTML = "";
+
+            if (list.length === 0) {
+                container.innerHTML = `<div class="no-results">😞 No internships found matching your search.</div>`;
+                return;
+            }
+
+            list.forEach((item, index) => {
+                container.innerHTML += `
+        <div class="card">
+            <h3>💼 ${item.title} <br><small style="font-size:0.9rem; font-weight:400; color:var(--text-muted)">🏢 ${item.company}</small></h3>
+            <button class="view" onclick="toggleDetails('i${index}')">🔍 View Details</button>
+
+            <div id="i${index}" class="details">
+                <p><b>📁 Documents:</b> ${item.docs}</p>
+                <p><b>⏳ Deadline:</b> ${item.date}</p>
+                <p><b>🔗 Apply:</b> 
+                    <a href="${item.link}" target="_blank">Click Here ↗</a>
+                </p>
+            </div>
+        </div>`;
+            });
+        }
+
+        let currentFilter = 'all';
+
+        function setFilter(type, btn) {
+            currentFilter = type;
+            const buttons = document.querySelectorAll('.menu button');
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            handleFilter();
+        }
+
+        function handleFilter() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+
+            const filtered = internships.filter(item => {
+                const matchesType = currentFilter === 'all' || item.type.includes(currentFilter);
+                const matchesSearch = item.title.toLowerCase().includes(query) || item.company.toLowerCase().includes(query);
+                return matchesType && matchesSearch;
+            });
+            displayInternships(filtered);
+        }
+
+        // Theme Sync Logic
+        function syncTheme() {
+            const isDark = localStorage.getItem('btech_theme') === 'dark';
+            if (isDark) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+        }
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'btech_theme') syncTheme();
+        });
+
+        // Initialize on load
+        syncTheme();
+        // Periodical check for cross-frame consistency
+        setInterval(syncTheme, 1000);
+
+        document.addEventListener('click', function (e) {
+            if (e.target.tagName.toLowerCase() === 'button' && !e.target.classList.contains('theme-toggle')) {
+                let btn = e.target;
+                let ripple = document.createElement('span');
+                ripple.classList.add('ripple');
+                let rect = btn.getBoundingClientRect();
+                let size = Math.max(rect.width, rect.height);
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = e.clientX - rect.left - size / 2 + 'px';
+                ripple.style.top = e.clientY - rect.top - size / 2 + 'px';
+                btn.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            }
+        });
+
+        handleFilter();
+
+    </script>
+
+</body>
+
+</html>

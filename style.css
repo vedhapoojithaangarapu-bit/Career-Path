@@ -1,0 +1,602 @@
+/* ============================================================
+   style.css — B.Tech Student Login Portal
+   Design: Dark glassmorphism, animated gradient background,
+           smooth micro-interactions, fully responsive.
+   ============================================================ */
+
+/* ── 1. CSS Custom Properties (Design Tokens) ─────────────── */
+:root {
+  /* Palette */
+  --clr-bg-start:   #0d0f1a;
+  --clr-bg-end:     #121629;
+  --clr-primary:    #6c63ff;       /* vibrant indigo-violet       */
+  --clr-primary-h:  #8b85ff;       /* hover / lighter tint        */
+  --clr-accent:     #00d4aa;       /* teal accent                 */
+  --clr-danger:     #ff5c7a;       /* error red-pink              */
+  --clr-success:    #00d4aa;       /* success teal                */
+
+  /* Glassmorphism card */
+  --card-bg:        rgba(255, 255, 255, 0.05);
+  --card-border:    rgba(255, 255, 255, 0.12);
+  --card-shadow:    0 25px 60px rgba(0, 0, 0, 0.55);
+
+  /* Text */
+  --clr-text:       #e2e8f0;
+  --clr-text-muted: #94a3b8;
+  --clr-label:      #cbd5e1;
+
+  /* Input */
+  --input-bg:       rgba(255, 255, 255, 0.07);
+  --input-border:   rgba(255, 255, 255, 0.15);
+  --input-focus:    rgba(108, 99, 255, 0.6);
+
+  /* Brand Typography Variables */
+  --brand-gradient-start: #ffffff;
+  --brand-gradient-end: var(--clr-primary-h);
+
+  /* Utilities */
+  --autofill-bg:    #1a1d2e;
+
+  /* Spacing & radii */
+  --radius-card:    24px;
+  --radius-input:   12px;
+  --radius-btn:     12px;
+
+  /* Typography */
+  --font-main:      'Inter', system-ui, sans-serif;
+
+  /* Transitions */
+  --transition:     0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="light"] {
+  --clr-bg-start:   #f0f4f8;
+  --clr-bg-end:     #d9e2ec;
+  --clr-primary:    #5a52e6;
+  --clr-primary-h:  #4942cf;
+  
+  --card-bg:        rgba(255, 255, 255, 0.65);
+  --card-border:    rgba(255, 255, 255, 0.6);
+  --card-shadow:    0 25px 40px rgba(0, 0, 0, 0.08);
+
+  --clr-text:       #102a43;
+  --clr-text-muted: #486581;
+  --clr-label:      #334e68;
+
+  --input-bg:       rgba(255, 255, 255, 0.9);
+  --input-border:   rgba(0, 0, 0, 0.15);
+  --input-focus:    rgba(90, 82, 230, 0.4);
+
+  --brand-gradient-start: #102a43;
+  --brand-gradient-end: var(--clr-primary);
+
+  --autofill-bg:    #f8fafc;
+}
+
+/* ── 2. Reset & Base ──────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-main);
+  background: linear-gradient(135deg, var(--clr-bg-start), var(--clr-bg-end));
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--clr-text);
+  overflow: hidden;      /* clips animated blobs */
+  position: relative;
+}
+
+/* ── 3. Animated Background Blobs ────────────────────────── */
+.bg-blob {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.18;
+  pointer-events: none;
+  animation: floatBlob 12s ease-in-out infinite alternate;
+}
+
+.blob-1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, #6c63ff, transparent 70%);
+  top: -150px; left: -120px;
+  animation-duration: 14s;
+}
+
+.blob-2 {
+  width: 420px; height: 420px;
+  background: radial-gradient(circle, #00d4aa, transparent 70%);
+  bottom: -100px; right: -80px;
+  animation-duration: 10s;
+  animation-delay: -4s;
+}
+
+.blob-3 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, #ff5c7a, transparent 70%);
+  top: 50%; left: 60%;
+  animation-duration: 16s;
+  animation-delay: -8s;
+}
+
+@keyframes floatBlob {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(40px, 30px) scale(1.08); }
+}
+
+/* ── 4. Login Wrapper & Card ──────────────────────────────── */
+.login-wrapper {
+  width: 100%;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 2.5rem 2.25rem 2rem;
+
+  /* Entrance animation */
+  animation: cardIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── 5. Brand Section ─────────────────────────────────────── */
+.brand { text-align: center; margin-bottom: 1.5rem; }
+
+.brand-icon {
+  font-size: 3rem;
+  line-height: 1;
+  display: block;
+  margin-bottom: 0.6rem;
+  animation: bounceIn 0.7s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes bounceIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.brand-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--brand-gradient-start) 30%, var(--brand-gradient-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.brand-subtitle {
+  font-size: 0.85rem;
+  color: var(--clr-text-muted);
+  margin-top: 0.25rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── 6. Divider ───────────────────────────────────────────── */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--card-border), transparent);
+  margin-bottom: 1.75rem;
+}
+
+/* ── 7. Form Groups ───────────────────────────────────────── */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--clr-label);
+  margin-bottom: 0.45rem;
+  letter-spacing: 0.04em;
+}
+
+/* ── 8. Input Wrapper & Icons ─────────────────────────────── */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 0.9rem;
+  color: var(--clr-text-muted);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition);
+}
+
+.form-input {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-input);
+  color: var(--clr-text);
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  padding: 0.78rem 3rem 0.78rem 2.75rem;  /* left space for icon */
+  outline: none;
+  transition: border-color var(--transition),
+              box-shadow var(--transition),
+              background var(--transition);
+  /* Remove browser autofill yellow */
+  -webkit-text-fill-color: var(--clr-text);
+}
+
+/* Autofill override */
+.form-input:-webkit-autofill,
+.form-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px var(--autofill-bg) inset !important;
+  -webkit-text-fill-color: var(--clr-text) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.form-input::placeholder {
+  color: #475569;
+  font-size: 0.88rem;
+}
+
+/* Focus state */
+.form-input:focus {
+  border-color: var(--clr-primary);
+  box-shadow: 0 0 0 3px var(--input-focus);
+  background: rgba(255, 255, 255, 0.09);
+}
+
+/* Focus → icon color boost */
+.input-wrapper:focus-within .input-icon {
+  color: var(--clr-primary-h);
+}
+
+/* Error state */
+.form-input.input-error {
+  border-color: var(--clr-danger) !important;
+  box-shadow: 0 0 0 3px rgba(255, 92, 122, 0.25) !important;
+}
+
+/* ── 9. Password Toggle Button ────────────────────────────── */
+.toggle-password {
+  position: absolute;
+  right: 0.9rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--clr-text-muted);
+  display: flex;
+  align-items: center;
+  padding: 0.2rem;
+  border-radius: 6px;
+  transition: color var(--transition);
+}
+
+.toggle-password:hover,
+.toggle-password:focus-visible {
+  color: var(--clr-primary-h);
+  outline: 2px solid var(--clr-primary);
+  outline-offset: 2px;
+}
+
+/* ── 10. Error Messages ───────────────────────────────────── */
+.error-msg {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--clr-danger);
+  margin-top: 0.35rem;
+  min-height: 1.1em;
+  letter-spacing: 0.02em;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity var(--transition), transform var(--transition);
+}
+
+.error-msg.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── 11. Form Options Row ─────────────────────────────────── */
+.form-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.4rem;
+}
+
+/* Custom checkbox */
+.remember-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.84rem;
+  color: var(--clr-text-muted);
+  user-select: none;
+  position: relative;
+}
+
+.remember-label input[type="checkbox"] {
+  opacity: 0;
+  position: absolute;
+  left: 0;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.checkmark {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--input-border);
+  border-radius: 5px;
+  background: var(--input-bg);
+  transition: border-color var(--transition), background var(--transition);
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* Tick mark */
+.checkmark::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 5px;
+  width: 5px; height: 9px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.2s ease;
+}
+
+.remember-label input:checked ~ .checkmark {
+  background: var(--clr-primary);
+  border-color: var(--clr-primary);
+}
+
+.remember-label input:checked ~ .checkmark::after {
+  transform: rotate(45deg) scale(1);
+}
+
+.remember-label input:focus-visible ~ .checkmark {
+  outline: 2px solid var(--clr-primary-h);
+  outline-offset: 2px;
+}
+
+.forgot-link {
+  font-size: 0.84rem;
+  color: var(--clr-primary-h);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--transition);
+}
+
+.forgot-link:hover,
+.forgot-link:focus-visible {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* ── 12. Login Button ─────────────────────────────────────── */
+.btn-login {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  border: none;
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  font-family: var(--font-main);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: linear-gradient(135deg, var(--clr-primary), #9b5de5);
+  box-shadow: 0 4px 20px rgba(108, 99, 255, 0.4);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  overflow: hidden;
+  transition: transform var(--transition),
+              box-shadow var(--transition),
+              opacity var(--transition);
+}
+
+/* Shimmer sweep on hover */
+.btn-login::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -75%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.5s ease;
+}
+
+.btn-login:hover::before { left: 130%; }
+
+.btn-login:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(108, 99, 255, 0.55);
+}
+
+.btn-login:active:not(:disabled) { transform: translateY(0); }
+
+.btn-login:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Button spinner */
+.btn-spinner {
+  display: none;
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.btn-login.loading .btn-spinner { display: block; }
+.btn-login.loading .btn-text   { opacity: 0.7; }
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── 13. Form Alert (Success / Error Banner) ──────────────── */
+.form-alert {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-align: center;
+  display: none;
+  animation: fadeSlideIn 0.3s ease;
+}
+
+.form-alert.alert-success {
+  display: block;
+  background: rgba(0, 212, 170, 0.15);
+  border: 1px solid rgba(0, 212, 170, 0.4);
+  color: #00d4aa;
+}
+
+.form-alert.alert-error {
+  display: block;
+  background: rgba(255, 92, 122, 0.12);
+  border: 1px solid rgba(255, 92, 122, 0.35);
+  color: var(--clr-danger);
+}
+
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── 14. Card Footer Note ─────────────────────────────────── */
+.card-footer-note {
+  margin-top: 1.4rem;
+  font-size: 0.78rem;
+  color: #4b5563;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.card-footer-note strong {
+  color: var(--clr-text-muted);
+}
+
+/* ── 15. Responsive ───────────────────────────────────────── */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 2rem 1.5rem 1.75rem;
+    border-radius: 18px;
+  }
+
+  .brand-title { font-size: 1.5rem; }
+
+  .form-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+}
+
+/* ── 16. Theme Toggle ─────────────────────────────────────── */
+.theme-toggle {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 50%;
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--clr-text);
+  cursor: pointer;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background var(--transition), transform var(--transition), color var(--transition);
+}
+
+.theme-toggle:hover {
+  transform: scale(1.05);
+  background: var(--input-bg);
+}
+
+.theme-toggle svg {
+  width: 22px;
+  height: 22px;
+  transition: opacity var(--transition), transform var(--transition);
+}
+
+.sun-icon {
+  position: absolute;
+  opacity: 0;
+  transform: rotate(-45deg);
+}
+
+.moon-icon {
+  opacity: 1;
+  transform: rotate(0);
+}
+
+[data-theme="light"] .sun-icon {
+  opacity: 1;
+  transform: rotate(0);
+}
+
+[data-theme="light"] .moon-icon {
+  opacity: 0;
+  transform: rotate(45deg);
+}
+
+/* ── 17. Focus-visible accessibility outline ──────────────── */
+:focus-visible {
+  outline: 2px solid var(--clr-primary-h);
+  outline-offset: 3px;
+}

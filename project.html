@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Ideas Collection</title>
+    <!-- Google Font: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Light Theme Variables */
+            --bg-main: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --card-border: rgba(255, 255, 255, 0.8);
+            --card-shadow: rgba(31, 38, 135, 0.08);
+            --primary: #6c63ff;
+            --primary-hover: #5b54d6;
+            --accent: #00d4aa;
+            --input-bg: rgba(255, 255, 255, 0.6);
+            --btn-text: #1e293b;
+            --blob-1: rgba(108, 99, 255, 0.3);
+            --blob-2: rgba(0, 212, 170, 0.3);
+            --transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme Variables */
+            --bg-main: #0b1120;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --card-bg: rgba(30, 41, 59, 0.6);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-shadow: rgba(0, 0, 0, 0.3);
+            --input-bg: rgba(30, 41, 59, 0.8);
+            --btn-text: #f1f5f9;
+            --blob-1: rgba(108, 99, 255, 0.15);
+            --blob-2: rgba(0, 212, 170, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: background-color var(--transition), color var(--transition);
+        }
+
+        /* ── Animated Background Blobs ── */
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            animation: float 15s infinite alternate ease-in-out;
+            pointer-events: none;
+        }
+
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            background: var(--blob-1);
+            top: -150px;
+            left: -100px;
+        }
+
+        .blob-2 {
+            width: 400px;
+            height: 400px;
+            background: var(--blob-2);
+            bottom: -100px;
+            right: -50px;
+            animation-delay: -5s;
+        }
+
+        .blob-3 {
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 92, 122, 0.15);
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-duration: 20s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(50px, 30px) scale(1.05);
+            }
+
+            100% {
+                transform: translate(-30px, 60px) scale(0.95);
+            }
+        }
+
+        /* ── Layout & Header ── */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: slideDown 0.6s ease-out forwards;
+        }
+
+        .header-section h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .header-section p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Controls (Search & Filters) ── */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem 1rem 3rem;
+            border-radius: 50px;
+            border: 2px solid var(--card-border);
+            background: var(--input-bg);
+            color: var(--text-main);
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px var(--card-shadow);
+            outline: none;
+            transition: all var(--transition);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 4px 25px rgba(108, 99, 255, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+        }
+
+        .filter-btn {
+            padding: 0.6rem 1.25rem;
+            border: 1px solid var(--card-border);
+            border-radius: 50px;
+            background: var(--input-bg);
+            color: var(--btn-text);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all var(--transition);
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px var(--card-shadow);
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.4);
+        }
+
+        /* ── Grid & Cards ── */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            perspective: 1000px;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 2rem;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 10px 30px var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            /* Handled by animation */
+            animation: slideUpFade 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+            transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+        }
+
+        .project-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(108, 99, 255, 0.15);
+            border-color: var(--primary);
+        }
+
+        @keyframes slideUpFade {
+            0% {
+                opacity: 0;
+                transform: translateY(40px) rotateX(5deg);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) rotateX(0deg);
+            }
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .card-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 16px;
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            flex-shrink: 0;
+            box-shadow: inset 0 0 0 1px rgba(108, 99, 255, 0.2);
+        }
+
+        .card-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+
+        .project-list {
+            list-style: none;
+            margin-bottom: 2rem;
+            flex-grow: 1;
+        }
+
+        .project-list li {
+            position: relative;
+            padding-left: 1.75rem;
+            margin-bottom: 0.85rem;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            transition: color var(--transition);
+        }
+
+        .project-list li::before {
+            content: '📌';
+            position: absolute;
+            left: 0;
+            top: 2px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .project-list li:hover {
+            color: var(--text-main);
+        }
+
+        .btn-details {
+            width: 100%;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 12px;
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-family: inherit;
+        }
+
+        .btn-details:hover {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+        }
+
+        .no-results {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            background: var(--card-bg);
+            border-radius: 20px;
+            border: 1px dashed var(--card-border);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1.5rem;
+            }
+
+            .header-section h1 {
+                font-size: 2rem;
+            }
+
+            .grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Decorative Background -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="container">
+        <!-- Header & Controls -->
+        <div class="header-section">
+            <h1>🚀 Project Ideas</h1>
+            <p>Discover hand-picked projects to build your portfolio and master your tech stack.</p>
+
+            <div class="controls">
+                <div class="search-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="searchInput" class="search-input"
+                        placeholder="Search by tech, project name...">
+                </div>
+
+                <div class="filters" id="filterContainer">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="c">C / C++</button>
+                    <button class="filter-btn" data-filter="java">Java</button>
+                    <button class="filter-btn" data-filter="python">Python</button>
+                    <button class="filter-btn" data-filter="web">Web Dev</button>
+                    <button class="filter-btn" data-filter="mern">MERN Stack</button>
+                    <button class="filter-btn" data-filter="fullstack">Full Stack</button>
+                    <button class="filter-btn" data-filter="devops">DevOps</button>
+                    <button class="filter-btn" data-filter="dsa">DSA</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grid Container -->
+        <div class="grid-container" id="projectGrid">
+            <!-- Cards rendered via JS -->
+        </div>
+    </div>
+
+    <script>
+        /* ── Theme Inherit Logic (Listens to parent dashboard) ── */
+        function applyTheme() {
+            // Check if btech_theme exists in localStorage (set by dashboard)
+            const theme = localStorage.getItem('btech_theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+        applyTheme();
+        window.addEventListener('storage', applyTheme);
+
+        /* ── Data Source ── */
+        const projectsData = [
+            {
+                id: 'c', category: 'c', title: 'C Projects', icon: '💎',
+                items: ['Student Management System', 'Banking System', 'Library Management', 'Simple Calculator', 'File Handling Utility']
+            },
+            {
+                id: 'java', category: 'java', title: 'Java Projects', icon: '☕',
+                items: ['Student Record System', 'Online Quiz App', 'Banking Application', 'Library System', 'Chat Application Socket']
+            },
+            {
+                id: 'python', category: 'python', title: 'Python Projects', icon: '🐍',
+                items: ['To-Do List REST API', 'Weather App using OpenWeather', 'Selenium Web Scraper', 'Password Generator GUI', 'Automated File Organizer']
+            },
+            {
+                id: 'web', category: 'web', title: 'Web Development', icon: '🌐',
+                items: ['Personal Portfolio Website', 'Product Landing Page', 'JS Calculator App', 'Markdown Blog Website', 'Responsive Navigation Bar']
+            },
+            {
+                id: 'mern', category: 'mern', title: 'MERN Stack', icon: '⚛️',
+                items: ['To-Do App (Full CRUD)', 'Markdown Blog App', 'Real-time Chat App', 'E-commerce Storefront', 'Job Listing Portal']
+            },
+            {
+                id: 'fullstack', category: 'fullstack', title: 'Full Stack', icon: '⚙️',
+                items: ['Food Delivery Platform', 'Online Shopping System', 'Social Media Clone', 'University Student Portal', 'Event Booking System']
+            },
+            {
+                id: 'devops', category: 'devops', title: 'DevOps & Cloud', icon: '🚀',
+                items: ['Automated CI/CD Pipeline', 'Dockerized Web App', 'Kubernetes Auto-scaling', 'Prometheus Monitoring System', 'AWS Serverless Deployment']
+            },
+            {
+                id: 'dsa', category: 'dsa', title: 'Data Structures', icon: '🗂️',
+                items: ['Custom Linked List Class', 'Stack & Queue via Arrays', 'Binary Search Tree visualizer', 'Graph Traversal (BFS/DFS)', 'Sorting Algorithm Visualizer']
+            }
+        ];
+
+        /* ── DOM References ── */
+        const grid = document.getElementById('projectGrid');
+        const searchInput = document.getElementById('searchInput');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+
+        /* ── Rendering Logic ── */
+        function renderCards(filter = 'all', query = '') {
+            grid.innerHTML = '';
+
+            const lowerQuery = query.toLowerCase().trim();
+
+            const filteredData = projectsData.filter(proj => {
+                const matchesFilter = filter === 'all' || proj.category === filter;
+                const matchesSearch = proj.title.toLowerCase().includes(lowerQuery) ||
+                    proj.items.some(item => item.toLowerCase().includes(lowerQuery));
+                return matchesFilter && matchesSearch;
+            });
+
+            if (filteredData.length === 0) {
+                grid.innerHTML = '<div class="no-results">No project ideas found matching your criteria.</div>';
+                return;
+            }
+
+            filteredData.forEach((proj, index) => {
+                // Generate bullet list
+                let listHTML = '';
+                proj.items.forEach(item => {
+                    listHTML += `<li>${item}</li>`;
+                });
+
+                // Create Card Element
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                // Add staggered animation delay
+                card.style.animationDelay = `${index * 0.08}s`;
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-icon">${proj.icon}</div>
+                        <h2 class="card-title">${proj.title}</h2>
+                    </div>
+                    <ul class="project-list">
+                        ${listHTML}
+                    </ul>
+                    <button class="btn-details">
+                        <span>View Details</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </button>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        /* ── Event Listeners ── */
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                // Update active button state
+                filterBtns.forEach(b => b.classList.remove('active'));
+                const clickedBtn = e.currentTarget;
+                clickedBtn.classList.add('active');
+
+                // Trigger render
+                const filter = clickedBtn.getAttribute('data-filter');
+                renderCards(filter, searchInput.value);
+            });
+        });
+
+        searchInput.addEventListener('input', (e) => {
+            const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+            renderCards(activeFilter, e.target.value);
+        });
+
+        // Add fun detail button interaction
+        grid.addEventListener('click', (e) => {
+            const btn = e.target.closest('.btn-details');
+            if (btn) {
+                const title = btn.closest('.project-card').querySelector('.card-title').textContent;
+                btn.innerHTML = `<span>Opening...</span>`;
+                setTimeout(() => {
+                    alert('Viewing expanded details for: ' + title);
+                    btn.innerHTML = `
+                        <span>View Details</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    `;
+                }, 500);
+            }
+        });
+
+        /* ── Initial Render ── */
+        renderCards();
+
+    </script>
+</body>
+
+</html>

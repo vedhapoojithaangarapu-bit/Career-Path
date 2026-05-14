@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning & Quiz Platform</title>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* =========================================================
+           CSS Custom Properties & Theming
+           ========================================================= */
+        :root {
+            --bg-body: #f4f7f6;
+            --bg-nav: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --card-border: rgba(255, 255, 255, 1);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+
+            --primary: #6c63ff;
+            --primary-hover: #5b54d6;
+            --secondary: #f8fafc;
+            --accent: #00d4aa;
+            --danger: #ff5c7a;
+            --warning: #ffb800;
+
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --transition: 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+            --font-main: 'Inter', system-ui, sans-serif;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0d0f1a;
+            --bg-nav: #0b1120;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+
+            --card-bg: rgba(30, 41, 59, 0.5);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+
+            --secondary: #1e293b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-y: scroll;
+            /* Only one global scrollbar */
+            overflow-x: hidden;
+            transition: background-color var(--transition), color var(--transition);
+        }
+
+        /* Background Blobs for Glassmorphism Context */
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            animation: float 15s infinite alternate ease-in-out;
+            opacity: 0.3;
+        }
+
+        .blob-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--primary);
+            top: -100px;
+            left: -100px;
+        }
+
+        .blob-2 {
+            width: 350px;
+            height: 350px;
+            background: var(--accent);
+            bottom: -100px;
+            right: -50px;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(40px, 60px) scale(1.1);
+            }
+        }
+
+        /* =========================================================
+           Navbar
+           ========================================================= */
+        /* =========================================================
+           App Container & View Management
+           ========================================================= */
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .view {
+            display: none;
+            opacity: 0;
+            animation: fadeIn 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+        }
+
+        .view.active {
+            display: block;
+            opacity: 1;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: var(--radius-sm);
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(108, 99, 255, 0.1);
+        }
+
+        .btn-back {
+            background: transparent;
+            color: var(--text-muted);
+            padding: 0.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .btn-back:hover {
+            color: var(--text-main);
+        }
+
+        /* =========================================================
+           View 1: Subjects Grid
+           ========================================================= */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .subjects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .subject-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: all var(--transition);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: var(--primary);
+            box-shadow: 0 15px 35px rgba(108, 99, 255, 0.15);
+        }
+
+        .subject-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 1rem;
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .subject-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .subject-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        /* =========================================================
+           View 2: Difficulty Selection
+           ========================================================= */
+        .difficulty-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .diff-card {
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition);
+            box-shadow: var(--card-shadow);
+        }
+
+        .diff-card.beginner:hover {
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px rgba(0, 212, 170, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .diff-card.intermediate:hover {
+            border-color: var(--warning);
+            box-shadow: 0 10px 30px rgba(255, 184, 0, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .diff-card.advanced:hover {
+            border-color: var(--danger);
+            box-shadow: 0 10px 30px rgba(255, 92, 122, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .diff-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .diff-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        @media(max-width: 768px) {
+            .difficulty-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* =========================================================
+           View 3: Quiz Interface
+           ========================================================= */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            background: var(--card-bg);
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--card-border);
+        }
+
+        .quiz-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .timer-badge {
+            background: rgba(255, 92, 122, 0.1);
+            color: var(--danger);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: var(--secondary);
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%;
+            transition: width 0.4s ease;
+            border-radius: 4px;
+        }
+
+        .question-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(16px);
+            margin-bottom: 2rem;
+        }
+
+        .question-meta {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 2.5rem;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .option-item {
+            background: var(--secondary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-sm);
+            padding: 1.25rem 1.5rem;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-main);
+        }
+
+        .option-item:hover {
+            background: rgba(108, 99, 255, 0.05);
+            border-color: rgba(108, 99, 255, 0.3);
+        }
+
+        .option-item.selected {
+            background: rgba(108, 99, 255, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.15);
+        }
+
+        .option-letter {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: var(--text-muted);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .option-item.selected .option-letter {
+            background: var(--primary);
+            color: white;
+        }
+
+        .quiz-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media(max-width: 768px) {
+            .question-card {
+                padding: 1.5rem;
+            }
+
+            .question-text {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* =========================================================
+           View 4: Results
+           ========================================================= */
+        .results-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--card-border);
+            backdrop-filter: blur(16px);
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary) calc(var(--score-pct) * 1%), var(--secondary) 0);
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            inset: 10px;
+            background: var(--card-bg);
+            border-radius: 50%;
+        }
+
+        .score-content {
+            position: relative;
+            z-index: 10;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .score-content span {
+            font-size: 1rem;
+            color: var(--text-muted);
+            display: block;
+            font-weight: 500;
+        }
+
+        .result-level {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .result-msg {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .stat-box {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .stat-val {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .stat-val.correct {
+            color: var(--accent);
+        }
+
+        .stat-val.wrong {
+            color: var(--danger);
+        }
+
+        .stat-val.skipped {
+            color: var(--warning);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .explanations {
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        .explanations h3 {
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .exp-item {
+            background: var(--secondary);
+            padding: 1rem;
+            border-radius: var(--radius-sm);
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .exp-item.wrong-ans {
+            border-left-color: var(--danger);
+        }
+
+        .exp-item.correct-ans {
+            border-left-color: var(--accent);
+        }
+
+        .exp-q {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .exp-a {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .exp-mark {
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .results-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        @media(max-width: 600px) {
+            .stats-row {
+                gap: 1rem;
+            }
+
+            .results-container {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body data-theme="light">
+
+    <!-- Background Blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <!-- Navigation Removed -->
+
+    <main class="app-container">
+
+        <!-- ================= VIEW 1: SUBJECTS ================= -->
+        <section id="view-subjects" class="view active">
+            <div class="page-header">
+                <h1>What do you want to learn today?</h1>
+                <p>Choose a subject to test your knowledge and track your progress.</p>
+            </div>
+            <div class="subjects-grid" id="subjectsGrid">
+                <!-- Javascript will render subjects here -->
+            </div>
+        </section>
+
+        <!-- ================= VIEW 2: DIFFICULTY ================= -->
+        <section id="view-difficulty" class="view">
+            <button class="btn btn-back" onclick="switchView('view-subjects')">← Back to Subjects</button>
+
+            <div class="page-header">
+                <h1 id="diffSubjectTitle">Subject</h1>
+                <p>Select your experience level</p>
+            </div>
+
+            <div class="difficulty-grid">
+                <div class="diff-card beginner" onclick="startQuiz('beginner')">
+                    <div class="diff-icon">🌱</div>
+                    <h3>Beginner</h3>
+                    <p style="color: var(--text-muted)">Core concepts & fundamentals</p>
+                </div>
+                <div class="diff-card intermediate" onclick="startQuiz('intermediate')">
+                    <div class="diff-icon">🚀</div>
+                    <h3>Intermediate</h3>
+                    <p style="color: var(--text-muted)">Practical knowledge & application</p>
+                </div>
+                <div class="diff-card advanced" onclick="startQuiz('advanced')">
+                    <div class="diff-icon">🧠</div>
+                    <h3>Advanced</h3>
+                    <p style="color: var(--text-muted)">Deep dives & complex problems</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= VIEW 3: QUIZ ACTIVE ================= -->
+        <section id="view-quiz" class="view">
+            <div class="quiz-header">
+                <div class="quiz-title">
+                    <span id="quizActiveIcon"></span>
+                    <span id="quizActiveSubject">Subject</span> - <span id="quizActiveDiff"
+                        style="text-transform:capitalize; color: var(--text-muted); font-weight: normal;">Diff</span>
+                </div>
+                <div class="timer-badge">
+                    ⏱️ <span id="timerDisplay">00:30</span>
+                </div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <div class="question-card" id="questionCard">
+                <div class="question-meta">Question <span id="qCurrent">1</span> of <span id="qTotal">10</span></div>
+                <div class="question-text" id="questionText">Question goes here?</div>
+
+                <div class="options-grid" id="optionsGrid">
+                    <!-- Options injected via JS -->
+                </div>
+            </div>
+
+            <div class="quiz-footer">
+                <button class="btn btn-outline" id="btnSkip" onclick="handleSkip()">Skip Question</button>
+                <div style="display: flex; gap: 1rem;">
+                    <!-- Prev button disabled for simplicity, logic drives forward -->
+                    <button class="btn btn-primary" id="btnNext" onclick="handleNext()" disabled>Next Question
+                        &rarr;</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= VIEW 4: RESULTS ================= -->
+        <section id="view-results" class="view">
+            <div class="results-container">
+                <div class="score-circle" id="scoreCircle" style="--score-pct: 0;">
+                    <div class="score-content">
+                        <span id="scoreText">0/0</span>
+                    </div>
+                </div>
+
+                <h2 class="result-level" id="resultLevel">Level</h2>
+                <p class="result-msg" id="resultMsg">Message</p>
+
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <span class="stat-val correct" id="statCorrect">0</span>
+                        <span class="stat-label">Correct</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-val wrong" id="statWrong">0</span>
+                        <span class="stat-label">Wrong</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-val skipped" id="statSkipped">0</span>
+                        <span class="stat-label">Skipped</span>
+                    </div>
+                </div>
+
+                <div class="explanations" id="explanationsList">
+                    <h3>Review Answers</h3>
+                    <!-- Explanations injected here -->
+                </div>
+
+                <div class="results-actions">
+                    <button class="btn btn-outline" onclick="switchView('view-subjects')">← Home</button>
+                    <button class="btn btn-primary" onclick="startQuiz(currentDifficulty)">Retry Quiz ↻</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        /* =========================================================
+           DATA CONFIGURATION
+           ========================================================= */
+        const subjectsData = [
+            { id: 'c', title: 'C Programming', icon: '💎', desc: 'Pointers, memory management, and fundamentals.' },
+            { id: 'java', title: 'Java', icon: '☕', desc: 'OOP, Collections, and multi-threading basics.' },
+            { id: 'python', title: 'Python', icon: '🐍', desc: 'Data structures, list comprehensions, and automation.' },
+            { id: 'web', title: 'Web Development', icon: '🌐', desc: 'HTML semantics, CSS grids, and vanilla JS.' },
+            { id: 'mern', title: 'MERN Stack', icon: '⚛️', desc: 'React hooks, Express routing, and MongoDB schemas.' },
+            { id: 'fullstack', title: 'Full Stack', icon: '⚙️', desc: 'End-to-end architecture and RESTful APIs.' },
+            { id: 'devops', title: 'DevOps', icon: '🚀', desc: 'Docker containers, CI/CD pipelines, and Linux.' },
+            { id: 'dsa', title: 'Data Structures', icon: '🗂️', desc: 'Trees, graphs, and algorithmic time complexity.' },
+            { id: 'iot', title: 'IoT', icon: '📡', desc: 'Sensors, microcontrollers, and protocols.' },
+            { id: 'hacking', title: 'Ethical Hacking', icon: '🕵️', desc: 'Network security, cryptography, and pentesting.' }
+        ];
+
+        // Full Quiz Database
+        const quizDB = {
+            c: {
+                beginner: [
+                    { q: "Who is the father of C language?", options: ["Bjarne Stroustrup", "James Gosling", "Dennis Ritchie", "Ken Thompson"], ans: 2, exp: "Dennis Ritchie created C in 1972 at Bell Labs." },
+                    { q: "What is the size of an 'int' data type on a standard 32-bit system?", options: ["1 byte", "2 bytes", "4 bytes", "8 bytes"], ans: 2, exp: "On a 32-bit system, an int typically takes 4 bytes of memory." },
+                    { q: "Which symbol is used to terminate a statement in C?", options: [".", ";", ":", ","], ans: 1, exp: "Every C statement must end with a semicolon (;)." },
+                    { q: "What is the format specifier for a float?", options: ["%d", "%c", "%f", "%lf"], ans: 2, exp: "%f is used to format floating-point numbers." },
+                    { q: "Which function is used to print to the console?", options: ["scanf()", "print()", "console.log()", "printf()"], ans: 3, exp: "printf() is the standard output function in C." }
+                ],
+                intermediate: [
+                    { q: "Which operator is known as the 'address of' operator?", options: ["*", "&", "->", "&&"], ans: 1, exp: "& returns the memory address of its operand." },
+                    { q: "What will malloc() return if memory allocation fails?", options: ["0", "Garbage Value", "NULL", "-1"], ans: 2, exp: "malloc() returns a NULL pointer on failure." },
+                    { q: "Which loop guarantees at least one execution of its body?", options: ["for", "while", "do-while", "None"], ans: 2, exp: "The do-while loop evaluates its condition after execution." },
+                    { q: "What is a segmentation fault?", options: ["Syntax error", "Memory access violation", "Infinite loop", "Missing semicolon"], ans: 1, exp: "It occurs when a program tries to access restricted memory." },
+                    { q: "In C, array indices start at what number?", options: ["0", "1", "-1", "Depends on OS"], ans: 0, exp: "By standard, array indexing in C is zero-based." }
+                ],
+                advanced: [
+                    { q: "What does the keyword 'volatile' indicate?", options: ["Variable cannot be changed", "Variable can be changed externally", "Variable is stored in registers", "Variable is private"], ans: 1, exp: "Volatile tells the compiler the variable's value may change at any time externally." },
+                    { q: "What is the purpose of 'pragma pack'?", options: ["Code optimization", "Loop unrolling", "Structure padding control", "Macro definition"], ans: 2, exp: "#pragma pack is used to control memory alignment padding in structs." },
+                    { q: "How can you prevent a function from being linked externally in a multi-file program?", options: ["Use static keyword", "Use extern keyword", "Declare it inside main", "Use const keyword"], ans: 0, exp: "The static keyword limits the scope of a function to its translation unit." },
+                    { q: "What is a dangling pointer?", options: ["Pointer pointing to a freed memory location", "Uninitialized pointer", "Pointer storing NULL", "Pointer to an array"], ans: 0, exp: "A dangling pointer arises when an object is deleted without nullifying the pointer." },
+                    { q: "What does a pointer to a pointer look like?", options: ["*ptr", "&ptr", "**ptr", "->ptr"], ans: 2, exp: "**ptr denotes a variable that holds the address of another pointer variable." }
+                ]
+            },
+            java: {
+                beginner: [
+                    { q: "What is JVM?", options: ["Java Virtual Machine", "Java Value Module", "Java Visual Manager", "Just Virtual Method"], ans: 0, exp: "JVM executes Java bytecode, enabling write-once-run-anywhere." },
+                    { q: "Which keyword is used for inheritance in Java?", options: ["implements", "extends", "inherits", "super"], ans: 1, exp: "The 'extends' keyword is used to inherit from a parent class." },
+                    { q: "What is the default value of a local variable?", options: ["0", "null", "Garbage value", "No default value"], ans: 3, exp: "Local variables do not have default values and must be initialized before use." },
+                    { q: "Which method is the starting point of a Java program?", options: ["start()", "main()", "init()", "run()"], ans: 1, exp: "public static void main(String[] args) is the entry point." },
+                    { q: "Is Java a strictly object-oriented language?", options: ["Yes", "No", "Depends on JDK", "Only in SE"], ans: 1, exp: "No, because it inherently supports primitive data types like int, char, etc." }
+                ],
+                intermediate: [
+                    { q: "Which collection allows duplicate elements?", options: ["Set", "List", "Map", "HashSet"], ans: 1, exp: "The List interface (e.g., ArrayList) allows duplicate elements and maintains insertion order." },
+                    { q: "What is the purpose of the 'final' keyword?", options: ["Stop inheritance/modification", "Garbage collection", "Thread synchronization", "Method overloading"], ans: 0, exp: "A final block, method, or class cannot be modified, overridden, or extended." },
+                    { q: "What Exception is thrown when an array is accessed out of bounds?", options: ["NullPointerException", "ArrayIndexOutOfBoundsException", "ArithmeticException", "IOException"], ans: 1, exp: "ArrayIndexOutOfBoundsException is thrown for invalid indexing." },
+                    { q: "Which OOP concept is achieved using interfaces?", options: ["Encapsulation", "Polymorphism", "Abstraction", "Inheritance"], ans: 2, exp: "Interfaces provide 100% abstraction in Java." },
+                    { q: "Are strings mutable in standard Java?", options: ["Yes", "No", "Only if static", "Only character arrays"], ans: 1, exp: "String objects are immutable; StringBuffer/StringBuilder are mutable." }
+                ],
+                advanced: [
+                    { q: "What does the 'transient' keyword do?", options: ["Speeds up execution", "Makes a variable thread-local", "Prevents serialization of a variable", "Synchronizes a method"], ans: 2, exp: "Transient variables are ignored during object serialization." },
+                    { q: "Which memory area stores objects in Java?", options: ["Stack", "Heap", "String Pool", "Method Area"], ans: 1, exp: "All objects and their instance variables are allocated on the Heap." },
+                    { q: "What is the difference between execute() and submit() in ExecutorService?", options: ["None", "submit() returns a Future, execute() returns void", "execute() is faster", "submit() is deprecated"], ans: 1, exp: "submit() allows you to track task completion via a Future object." },
+                    { q: "How is Garbage Collection triggered manually?", options: ["System.gc()", "Runtime.clean()", "Thread.gc()", "Memory.clear()"], ans: 0, exp: "System.gc() requests garbage collection, though execution is not guaranteed." },
+                    { q: "What is double-checked locking used for?", options: ["Deadlock prevention", "Singleton instantiation", "Database indexing", "File reading"], ans: 1, exp: "It is a thread-safe implementation pattern for lazy Singleton creation." }
+                ]
+            },
+            python: {
+                beginner: [
+                    { q: "Which keyword defines a function?", options: ["function", "def", "define", "fun"], ans: 1, exp: "'def' is the reserved keyword to define a function." },
+                    { q: "What is the output of 3 ** 2?", options: ["6", "9", "5", "Error"], ans: 1, exp: "The ** operator denotes exponentiation (3 to the power of 2)." },
+                    { q: "Which symbol starts a comment in Python?", options: ["//", "/*", "#", "--"], ans: 2, exp: "The '#' symbol is used for single-line comments in Python." },
+                    { q: "What data type is [1, 2, 3]?", options: ["Tuple", "List", "Dictionary", "Set"], ans: 1, exp: "Square brackets define a mutable List." },
+                    { q: "Which function prints to the console?", options: ["echo()", "console.log()", "print()", "write()"], ans: 2, exp: "print() outputs text strictly to the console." }
+                ],
+                intermediate: [
+                    { q: "What does 'yield' do?", options: ["Exits a loop", "Returns a generator", "Raises an exception", "Imports a module"], ans: 1, exp: "'yield' suspends execution and returns a generator iterator." },
+                    { q: "How do you handle exceptions in Python?", options: ["try/catch", "try/except", "do/catch", "throw/catch"], ans: 1, exp: "Python uses try/except blocks to handle exceptions." },
+                    { q: "What is a lambda function?", options: ["A module", "A built-in class", "An anonymous inline function", "A keyword"], ans: 2, exp: "Lambda creates small, unnamed, single-expression anonymous functions." },
+                    { q: "Which module is used for regular expressions?", options: ["regex", "pyregex", "re", "rgx"], ans: 2, exp: "The 're' module provides regular expression matching operations." },
+                    { q: "What does 'self' represent?", options: ["Global scope", "Superclass", "Method name", "Instance of the class"], ans: 3, exp: "'self' points to the specific object instance calling the method." }
+                ],
+                advanced: [
+                    { q: "What is a Python decorator?", options: ["A UI library module", "A wrapper modifying a function's behavior", "An inheritance mechanism", "A compilation tool"], ans: 1, exp: "Decorators wrap functions to dynamically modify or wrap their behavior." },
+                    { q: "What is the Global Interpreter Lock (GIL)?", options: ["A file locker", "A mutex preventing multiple native threads from executing Python bytecodes at once", "A secure hashing lock", "An environment variable"], ans: 1, exp: "The GIL ensures only one thread executes Python bytecode at a time." },
+                    { q: "What is monkey patching?", options: ["A malware virus", "Fixing code with AI", "Dynamic modifications of a class or module at runtime", "Using the monkey module"], ans: 2, exp: "It allows replacing or modifying methods and attributes dynamically during execution." },
+                    { q: "What is the purpose of __init__.py?", options: ["It is the main entry point", "It installs dependencies", "It treats directories containing it as modules/packages", "It configures environments"], ans: 2, exp: "It allows Python to recognize a folder structure as manageable packages." },
+                    { q: "How does Python handle memory management?", options: ["Manual malloc()", "Garbage collection and reference counting", "No memory management", "OS-delegated only"], ans: 1, exp: "Python tracks objects via reference counts and uses a GC to collect cycles." }
+                ]
+            },
+            web: {
+                beginner: [
+                    { q: "What does HTML stand for?", options: ["Hyper Text Markup Language", "Home Tool Markup Language", "Hyperlinks Text Mark Language", "Hyper Tool Multi Language"], ans: 0, exp: "HTML handles the semantic structure of a webpage." },
+                    { q: "Which tag is used for an image?", options: ["<image>", "<img>", "<pic>", "<src>"], ans: 1, exp: "The <img> tag is an empty tag used to embed images." },
+                    { q: "Which CSS property changes text color?", options: ["text-color", "fgcolor", "color", "font-color"], ans: 2, exp: "The 'color' property dictates the foreground text color." },
+                    { q: "How do you link an external CSS file?", options: ["<style src='...'>", "<link rel='stylesheet' href='...'>", "<css href='...'>", "<stylesheet src='...'>"], ans: 1, exp: "The <link> tag placed in the <head> links external styles." },
+                    { q: "What does DOM stand for?", options: ["Document Object Model", "Display Object Management", "Document Oriented Model", "Digital Object Method"], ans: 0, exp: "The DOM represents the page so programs can change the document structure." }
+                ],
+                intermediate: [
+                    { q: "What does semantic HTML mean?", options: ["Tags without closing brackets", "Tags describing their meaning (e.g., <header>, <article>)", "Using XML formats", "Styling inside HTML"], ans: 1, exp: "Semantic tags clearly describe their meaning to both the browser and developer." },
+                    { q: "Which of the following is NOT a CSS position property?", options: ["absolute", "relative", "static", "aligned"], ans: 3, exp: "Valid positions are static, relative, absolute, fixed, and sticky." },
+                    { q: "What does 'preventDefault()' do?", options: ["Stops event bubbling", "Stops the default browser behavior of an event", "Hides the element", "Disables JavaScript"], ans: 1, exp: "It is often used to stop form submissions from reloading the page." },
+                    { q: "What is responsive web design?", options: ["Fast loading speeds", "Layouts adapting to different screen sizes", "Using React.js", "Animations responding to clicks"], ans: 1, exp: "RWD uses media queries and flexible grids to adapt to device sizes." },
+                    { q: "Which HTTP method is typically used to create a new resource?", options: ["GET", "PUT", "POST", "DELETE"], ans: 2, exp: "POST sends data to the server to create a new resource." }
+                ],
+                advanced: [
+                    { q: "What is the difference between local Storage and session Storage?", options: ["localStorage persists until deleted; sessionStorage is cleared when the tab closes", "localStorage is 1MB, sessionStorage is 5MB", "Session storage is sent to the server", "There is no difference"], ans: 0, exp: "Session storage is tied strictly to the lifecycle of the specific browser tab." },
+                    { q: "What does the z-index property govern?", options: ["Zoom level", "Stacking order of positioned elements along the Z-axis", "Horizontal alignment", "Opacity transition"], ans: 1, exp: "z-index decides which overlapping element appears on top." },
+                    { q: "What is a Service Worker primarily used for?", options: ["Running background tasks and caching offline capabilities", "Styling shadow DOMs", "Making REST API calls", "Validating HTML"], ans: 0, exp: "Service workers intercept network requests to allow offline PWA experiences." },
+                    { q: "What does a CSS specificity of '1,0,0' represent?", options: ["An ID selector", "A class selector", "An inline style", "An element selector"], ans: 0, exp: "Specificity is calculated. IDs carry a weight of 1,0,0." },
+                    { q: "What is Cross-Site Scripting (XSS)?", options: ["A CSS framework", "A vulnerability injecting malicious scripts into trusted websites", "Cross-domain server request", "Script concatenation"], ans: 1, exp: "XSS allows attackers to execute scripts in victims' browsers." }
+                ]
+            },
+            mern: {
+                beginner: [
+                    { q: "What does the 'R' in MERN stand for?", options: ["Ruby", "Rust", "React", "Redux"], ans: 2, exp: "React is the frontend library within the MERN stack." },
+                    { q: "What type of database is MongoDB?", options: ["Relational SQL", "NoSQL Document Store", "Graph Database", "Key-Value Cache"], ans: 1, exp: "MongoDB stores data in flexible, JSON-like Documents (BSON)." },
+                    { q: "Which package manager is most commonly used for Node.js?", options: ["pip", "npm", "composer", "gem"], ans: 1, exp: "Node Package Manager (npm) handles dependencies in Node." },
+                    { q: "What is Express.js?", options: ["A database", "A frontend framework", "A Node.js backend web application framework", "A compiler"], ans: 2, exp: "Express simplifies routing and middleware management for Node.js." },
+                    { q: "How do you create a React component?", options: ["Using a class or a function", "Using HTML templates", "Using SQL queries", "By modifying the DOM directly"], ans: 0, exp: "Modern React heavily relies on functional components." }
+                ],
+                intermediate: [
+                    { q: "Which hook is used to handle side effects in functional React?", options: ["useState", "useEffect", "useContext", "useReducer"], ans: 1, exp: "useEffect replaces lifecycle methods like componentDidMount." },
+                    { q: "What is Mongoose?", options: ["An animal", "An ODM (Object Data Modeling) library for MongoDB", "A routing engine", "A React library"], ans: 1, exp: "Mongoose provides a schema-based solution to model application data." },
+                    { q: "How do you handle routing in a React app?", options: ["Express", "React Router", "Node JS", "Window.location"], ans: 1, exp: "React Router enables client-side routing natively." },
+                    { q: "What does 'app.use(express.json())' do?", options: ["Sends JSON data", "Parses incoming JSON requests putting data into req.body", "Creates a JSON file", "Connects to MongoDB"], ans: 1, exp: "It is built-in middleware to parse incoming request payloads." },
+                    { q: "What is the Virtual DOM?", options: ["A cloud database", "An in-memory representation of the real DOM kept by React", "A Node environment", "A browser extension"], ans: 1, exp: "React uses it to batch DOM updates efficiently via reconciliation." }
+                ],
+                advanced: [
+                    { q: "How can you optimize MongoDB query performance?", options: ["Use higher RAM", "Limit document sizes", "Create Indexes on queried fields", "Use relational joins"], ans: 2, exp: "Indexes allow MongoDB to search efficiently without scanning every document." },
+                    { q: "In React, what is Prop Drilling?", options: ["Fixing bugs", "Passing data deeply through intermediate components unnecessarily", "A security vulnerability", "Extracting props"], ans: 1, exp: "Prop Drilling is an anti-pattern; state management (Context/Redux) solves it." },
+                    { q: "What is JWT typically used for in MERN?", options: ["Database querying", "Stateless authentication between client and server", "CSS bundling", "Server rendering"], ans: 1, exp: "JSON Web Tokens securely transmit user identity logic natively." },
+                    { q: "How does React Fiber improve performance?", options: ["Increases bandwidth", "Adds background colors", "Enables incremental, pause-able rendering of the tree", "Compresses JSON"], ans: 2, exp: "Fiber is React's core reconciliation engine that schedules render chunks." },
+                    { q: "What is the primary advantage of Next.js over vanilla React?", options: ["Less CSS", "Server-Side Rendering (SSR) & Static Generation capabilities", "No Node requirement", "Uses Vue instead"], ans: 1, exp: "Next.js drastically enhances SEO and load speeds via built-in SSR." }
+                ]
+            },
+            fullstack: {
+                beginner: [
+                    { q: "What represents the 'Frontend'?", options: ["Database", "Server Logic", "Client-side UI", "API Endpoints"], ans: 2, exp: "Frontend is the graphical UI the user interacts with." },
+                    { q: "What does an API do?", options: ["Styles web pages", "Connects different software components together", "Monitors battery life", "Hides IP addresses"], ans: 1, exp: "Application Programming Interfaces allow the frontend and backend to talk." },
+                    { q: "Which tool tests APIs?", options: ["Photoshop", "Postman", "Excel", "Docker"], ans: 1, exp: "Postman is an industry standard for executing and validating HTTP requests." },
+                    { q: "What is a database used for?", options: ["Rendering HTML", "Persistent Data Storage", "Managing CSS", "Running JavaScript"], ans: 1, exp: "Databases store and retrieve long-term state data." },
+                    { q: "Which protocol is primarily used for web data transfer?", options: ["FTP", "SMTP", "HTTP/HTTPS", "SSH"], ans: 2, exp: "HyperText Transfer Protocol is the foundation of data communication on the WWW." }
+                ],
+                intermediate: [
+                    { q: "What does REST stand for in RESTful APIs?", options: ["Representational State Transfer", "Remote Execution Storage Time", "Relay System Transfer", "Random Event State Trigger"], ans: 0, exp: "REST outlines standard architectural constraints for APIs." },
+                    { q: "What is CORS?", options: ["Cross-Origin Resource Sharing", "Centralized Object Routing System", "Control Origin Request Server", "Code Operation Retrieval"], ans: 0, exp: "CORS is a security feature governing what domains can fetch backend resources." },
+                    { q: "What is MVC architecture?", options: ["Media Voice Control", "Model-View-Controller pattern separating logic", "Main Variable Component", "Multiple View Creation"], ans: 1, exp: "MVC isolates application logic, UI, and data models." },
+                    { q: "Which is an example of an ORM (Object Relational Mapper)?", options: ["React", "Sequelize/Prisma", "Express", "Node"], ans: 1, exp: "Sequelize/Prisma map DB rows to Javascript Objects." },
+                    { q: "What status code represents 'Not Found'?", options: ["200", "500", "404", "401"], ans: 2, exp: "404 natively translates to the server failing to find the requested resource." }
+                ],
+                advanced: [
+                    { q: "What is Server-Side Rendering (SSR)?", options: ["Rendering components in the browser", "Fetching data via AJAX", "Generating HTML on the backend server before sending to client", "Caching CSS"], ans: 2, exp: "SSR improves first-load time and enables web-crawlers to parse content cleanly." },
+                    { q: "How do you achieve real-time bidirectional communication?", options: ["HTTP GET", "WebSockets (e.g., Socket.io)", "REST APIs", "GraphQL"], ans: 1, exp: "WebSockets open a persistent connection allowing push/pull." },
+                    { q: "What is an N+1 Query Problem?", options: ["Adding 1 to every DB entry", "When an ORM queries the DB iteratively per row instead of via a batch join", "A CSS calc() issue", "Infinite loops"], ans: 1, exp: "It destroys performance by making hundreds of small DB queries instead of one join." },
+                    { q: "What is horizontal scaling?", options: ["Adding more memory to one server", "Adding more machines into the resource pool", "Rotating the monitor", "Changing a grid to flex-row"], ans: 1, exp: "Horizontal scaling distributes load across multiple servers." },
+                    { q: "Describe OAuth 2.0.", options: ["A hashing algorithm", "An authorization protocol granting delegated access", "A database engine", "A CSS framework"], ans: 1, exp: "OAuth 2.0 enables applications to access user data without giving away passwords (e.g. Log in with Google)." }
+                ]
+            },
+            devops: {
+                beginner: [
+                    { q: "What does CI/CD stand for?", options: ["Code Integration / Code Deployment", "Continuous Integration / Continuous Deployment", "Constant Iteration / Constant Delivery", "Control Inside / Control Down"], ans: 1, exp: "It automates building, testing, and deploying stages of software." },
+                    { q: "What is Docker used for?", options: ["Database management", "Containerizing applications", "Writing CSS", "Image editing"], ans: 1, exp: "Docker standardizes software packaging into runnable isolated Containers." },
+                    { q: "Which tool tracks version control?", options: ["Jenkins", "Git", "Ansible", "Kubernetes"], ans: 1, exp: "Git manages codebase history and collaboration." },
+                    { q: "What is a Virtual Machine (VM)?", options: ["A physical server", "A software emulation of a physical computer", "A docker container", "A programming language"], ans: 1, exp: "VMs run a full OS stack on shared hardware." },
+                    { q: "What is AWS?", options: ["A web framework", "A text editor", "Amazon Web Services cloud platform", "Automated Web System"], ans: 2, exp: "AWS is a leading cloud provider for deploying and scaling apps." }
+                ],
+                intermediate: [
+                    { q: "What is Kubernetes?", options: ["A container orchestration tool", "A version control system", "A programming language", "A firewall"], ans: 0, exp: "K8s automates deployment, scaling, and management of container clusters." },
+                    { q: "What is Infrastructure as Code (IaC)?", options: ["Writing Java code", "Managing hardware arrays using Git repos", "Provisioning infrastructure through machine-readable definition files", "Compiling hardware"], ans: 2, exp: "Terraform/Ansible define cloud infrastructure via code." },
+                    { q: "What Jenkins concept dictates build steps?", options: ["Dockerile", "Jenkinsfile", "Manifest", "Makefile"], ans: 1, exp: "A Jenkinsfile defines the CI/CD pipeline." },
+                    { q: "What is a load balancer?", options: ["It distributes incoming network traffic across multiple servers", "It makes the database smaller", "It compiles code faster", "It measures CPU heat"], ans: 0, exp: "Load balancing prevents single-server overload." },
+                    { q: "What port does HTTP natively use?", options: ["21", "443", "80", "22"], ans: 2, exp: "Port 80 is HTTP, while 443 is used for secure HTTPS." }
+                ],
+                advanced: [
+                    { q: "What is the difference between Docker and Kubernetes?", options: ["None", "Docker runs containers, Kubernetes orchestrates massive clusters of them", "Kubernetes builds images, Docker deploys", "Docker is a VM, Kubernetes is bare metal"], ans: 1, exp: "Docker handles the runtime, Kubernetes handles the systemic orchestration." },
+                    { q: "What does a Prometheus system do?", options: ["Encrypts databases", "Provides metrics monitoring and alerting", "Deploys containers", "Compiles code"], ans: 1, exp: "Prometheus scrapes and stores metrics as time series data." },
+                    { q: "Describe a Blue-Green Deployment strategy.", options: ["Mixing UI colors", "Running two identical environments, routing traffic to deploy safety", "Uploading directly to prod", "Flipping DB tables"], ans: 1, exp: "It ensures zero downtime and rapid rollback capability." },
+                    { q: "What is a Reverse Proxy (e.g., NGINX)?", options: ["A proxy placed in front of web servers to distribute traffic", "A proxy used for client anonymity", "A VPN", "A DNS record"], ans: 0, exp: "It intercepts external requests and forwards them to internal worker servers." },
+                    { q: "In Terraform, what does '.tfstate' serve?", options: ["User logs", "Caching Docker images", "Mapping real-world resources to configuration", "Configures firewall"], ans: 2, exp: "State files are essential for Terraform to know what it currently controls." }
+                ]
+            },
+            dsa: {
+                beginner: [
+                    { q: "What does FIFO stand for?", options: ["First In First Out", "Fast In Fast Out", "First Index Final Object", "Find In Find Out"], ans: 0, exp: "FIFO describes the behavior of a Queue." },
+                    { q: "Which data structure uses LIFO?", options: ["Queue", "Tree", "Stack", "Graph"], ans: 2, exp: "LIFO (Last In First Out) ensures the newest element is popped first in a Stack." },
+                    { q: "What is the time complexity of accessing an array element by index?", options: ["O(n)", "O(log n)", "O(1)", "O(n^2)"], ans: 2, exp: "Array elements are stored contiguously, allowing instant O(1) access." },
+                    { q: "What is a Linked List?", options: ["An array of ints", "A sequence of nodes housing data and pointers", "A stack implementation", "A hash map"], ans: 1, exp: "Nodes contain data and a reference pointer to the next node." },
+                    { q: "Which algorithm sorts by halving?", options: ["Bubble Sort", "Insertion Sort", "Merge Sort/Quick Sort", "Selection Sort"], ans: 2, exp: "Merge and Quick divide arrays into smaller parts (Divide and Conquer)." }
+                ],
+                intermediate: [
+                    { q: "What is a Binary Search Tree (BST)?", options: ["A tree where nodes have any number of children", "A tree where left child < parent < right child", "An unbalanced graph", "An array"], ans: 1, exp: "BSTs maintain a sorted order allowing O(log n) typical lookup times." },
+                    { q: "What data structure does Depth First Search (DFS) typically use?", options: ["Queue", "Priority Queue", "Stack", "Linked List"], ans: 2, exp: "DFS follows a single path deep using a Stack (or recursion)." },
+                    { q: "What solves collisions in Hash Tables?", options: ["Chaining and Open Addressing", "Sorting", "Tree rotations", "Deleting data"], ans: 0, exp: "Linked lists (Chaining) or probes (Addressing) resolve matching hashes." },
+                    { q: "What is the worst-case time complexity of Quick Sort?", options: ["O(log n)", "O(n)", "O(n log n)", "O(n^2)"], ans: 3, exp: "Worst case happens when the pivot chosen is always the extreme element." },
+                    { q: "What is a Priority Queue?", options: ["A stack that is sorted", "A queue where elements possess priority values to determine pop order", "A regular list", "A binary search tree"], ans: 1, exp: "Usually implemented via Heaps to access minimum/maximum efficiently." }
+                ],
+                advanced: [
+                    { q: "What is Dynamic Programming (DP)?", options: ["Typing fast", "Solving problems by breaking them into overlapping subproblems and caching results", "Using dynamic typed languages", "Using pointers"], ans: 1, exp: "DP (Memoization/Tabulation) optimizes recursive problems drastically." },
+                    { q: "What is Dijkstra's algorithm used for?", options: ["Sorting arrays", "Finding shortest path in a graph with non-negative edges", "Detecting cycles", "String matching"], ans: 1, exp: "It maps the shortest route from a starting node to all other nodes." },
+                    { q: "What does an AVL Tree guarantee?", options: ["Nodes are colored red and black", "O(1) lookups", "Height balance resulting in O(log n) operations", "Duplicate elements"], ans: 2, exp: "AVL trees automatically self-balance via rotations." },
+                    { q: "Which is a characteristic of Topological Sort?", options: ["Works on any graph", "Requires a Directed Acyclic Graph (DAG)", "Finds shortest path", "Utilizes min-heaps"], ans: 1, exp: "Topological ordering creates a linear ordering of heavily dependent nodes." },
+                    { q: "What is the time complexity of building a Max-Heap from an unsorted array?", options: ["O(n^2)", "O(n log n)", "O(n)", "O(log n)"], ans: 2, exp: "By sifting down elements iteratively, building the entire heap is mathematically bounded at O(n)." }
+                ]
+            },
+            iot: {
+                beginner: [
+                    { q: "What does IoT stand for?", options: ["Internet of Technology", "Intranet of Things", "Internet of Things", "Industrial Output Telemetry"], ans: 2, exp: "IoT refers to physical objects embedded with sensors connecting to networks." },
+                    { q: "Which protocol is widely used for IoT messaging?", options: ["FTP", "SMTP", "MQTT", "POP3"], ans: 2, exp: "MQTT is an extremely lightweight publish/subscribe messaging transport protocol." },
+                    { q: "What acts as the 'brain' of a simple IoT device?", options: ["Microcontroller/Microprocessor", "Battery", "Antenna", "Screen"], ans: 0, exp: "MCUs (like Arduino/ESP32) process data logic." },
+                    { q: "What does a sensor do?", options: ["Produces sound", "Senses physical environment variables", "Connects to Wi-Fi", "Powers the board"], ans: 1, exp: "Sensors read inputs like temp, light, or pressure." },
+                    { q: "What is an actuator?", options: ["A wireless router", "A component responsible for moving or controlling a mechanisms", "A battery", "A type of sensor"], ans: 1, exp: "Actuators (like motors or relays) take action based on signals." }
+                ],
+                intermediate: [
+                    { q: "What is Edge Computing?", options: ["Placing devices on the edge of a table", "Processing data locally near the source rather than in a cloud server", "Using cutting-edge Wi-Fi", "A cloud interface"], ans: 1, exp: "Edge computing heavily saves bandwidth and reduces latency." },
+                    { q: "What network topology uses a central hub?", options: ["Mesh", "Bus", "Ring", "Star"], ans: 3, exp: "Star topology connects all nodes directly to one central hub/router." },
+                    { q: "What is LoRaWAN?", options: ["A fiber optic cable", "Low Power Wide Area Network for long-range communication", "A microchip", "A routing protocol"], ans: 1, exp: "LoRaWAN connects strictly battery-operated 'things' over long distances." },
+                    { q: "Which layer translates data into a readable format?", options: ["Perception Node", "Network Layer", "Application/Presentation Layer", "Transport Layer"], ans: 2, exp: "The application layer bridges data to user interfaces." },
+                    { q: "What role does REST play in IoT?", options: ["Sleep cycles of devices", "Architecture enabling stateless HTTP device interaction", "Database storage", "Battery management"], ans: 1, exp: "REST APIs often gather telemetry logs." }
+                ],
+                advanced: [
+                    { q: "What is NB-IoT?", options: ["No Battery IoT", "Narrowband IoT, a cellular radio tech for wide coverage", "Network Base IoT", "New Bandwidth IoT"], ans: 1, exp: "It provides deeper indoor cellular penetration for stationary devices." },
+                    { q: "What security threat represents a massive coordinated IoT attack?", options: ["SQL Injection", "XSS", "DDoS via botnets (e.g., Mirai)", "Phishing"], ans: 2, exp: "Vulnerable IoT devices are often hijacked into Botnets." },
+                    { q: "How do you achieve Real-Time Operating System (RTOS) behavior?", options: ["Predictable execution timing and preemptive task scheduling", "Using Windows 10", "Unlimited RAM", "Single-threaded loops"], ans: 0, exp: "RTOS ensures deterministic time-constraints are consistently met." },
+                    { q: "What is Digital Twin technology?", options: ["Cloning a hard drive", "A virtual software representation of a physical IoT system", "Two sensors next to each other", "A backup battery"], ans: 1, exp: "Digital twins mimic real-time behaviors of engines or cities for simulation." },
+                    { q: "What is CoAP?", options: ["Constrained Application Protocol used for simple UDP nodes", "A routing system", "A cloud server", "A security standard"], ans: 0, exp: "CoAP is an alternative to HTTP designed specifically for resource-constrained devices." }
+                ]
+            },
+            hacking: {
+                beginner: [
+                    { q: "What is Ethical Hacking?", options: ["Stealing data", "Testing systems for vulnerabilities legally and finding fixes", "Selling passwords", "Creating viruses"], ans: 1, exp: "White-hats use hacking techniques defensively under authorization." },
+                    { q: "What does Phishing mean?", options: ["Catching fish", "Deceiving individuals into revealing sensitive information", "A firewall type", "Encrypting files"], ans: 1, exp: "Phishing uses fake identities (like fake emails) to steal credentials." },
+                    { q: "What is Malware?", options: ["Malicious hardware", "Malicious software designed to cause harm", "A protection system", "A web browser"], ans: 1, exp: "Viruses, trojans, and worms are classifications of Malware." },
+                    { q: "What does securing a password entail?", options: ["Making it '12345'", "Sharing it securely", "Hashing it with algorithms like bcrypt", "Uploading it to the cloud"], ans: 2, exp: "Hashing ensures passwords are never stored in plain text." },
+                    { q: "What is a VPN?", options: ["Virtual Protected Node", "Virtual Private Network used to encrypt web traffic", "Very Private Name", "Vulnerability Protocol Network"], ans: 1, exp: "VPNs mask IP addresses and secure data transit via encryption tunnels." }
+                ],
+                intermediate: [
+                    { q: "What is SQL Injection?", options: ["Adding SQL to a resume", "Executing arbitrary SQL queries by manipulating user inputs", "A database backup", "Routing traffic to SQL"], ans: 1, exp: "It bypasses authentication or extracts unauthorized DB records." },
+                    { q: "What does Nmap do?", options: ["Maps Google servers", "A network scanner used to discover hosts and open ports", "Blocks firewalls", "Cracks passwords"], ans: 1, exp: "Network Mapper is universally used for network auditing/reconnaissance." },
+                    { q: "What is Man-in-the-Middle (MitM) attack?", options: ["An attacker secretly intercepts relaying communications", "A router failure", "A physical server intrusion", "Social engineering"], ans: 0, exp: "The attacker impersonates both parties to eavesdrop or alter data." },
+                    { q: "What is the purpose of a Firewall?", options: ["To speed up internet", "To monitor and block unauthorized network traffic", "To track user location", "To prevent SQL injection"], ans: 1, exp: "Firewalls enforce access policies between network segments." },
+                    { q: "What does an IDS do?", options: ["Intrusion Detection System detects suspicious activity", "Internal Domain Server", "Internet Data Storage", "Installs Defective Software"], ans: 0, exp: "IDS analyzes traffic for known threat signatures." }
+                ],
+                advanced: [
+                    { q: "What is Cross-Site Request Forgery (CSRF)?", options: ["Executing JS payloads", "Forcing an authenticated end-user to execute unwanted actions", "Cracking a server", "Gaining admin rights"], ans: 1, exp: "CSRF tricks the browser into making authenticated state-changing requests." },
+                    { q: "What is a Buffer Overflow?", options: ["A full hard drive", "Writing more data to a system memory buffer than it can hold, overwriting adjacent memory", "A DDoS attack", "Slowing down CPU"], ans: 1, exp: "It can corrupt data, crash apps, or execute arbitrary payloads." },
+                    { q: "What represents asymmetric encryption?", options: ["Using one identical key", "Using pairs of public and private keys (e.g., RSA)", "Decoding base64", "MD5 Hash"], ans: 1, exp: "Public keys encrypt data that only the private key can decrypt." },
+                    { q: "What is the purpose of Wireshark?", options: ["Capturing and interactively browsing packet traffic across a network", "Killing viruses", "Automating web scraping", "Generating passwords"], ans: 0, exp: "Wireshark is the de facto packet analyzer for deep network troubleshooting/testing." },
+                    { q: "What is a Zero-Day vulnerability?", options: ["A virus deployed at midnight", "A flaw previously unknown to the vendor, meaning 0 days of patch availability", "A server crash", "A perfectly secure system"], ans: 1, exp: "Zero-days are highly critical because no defense initially exists." }
+                ]
+            }
+        };
+
+        function getQuizData(subjectId, diff) {
+            return quizDB[subjectId][diff];
+        }
+
+
+        /* =========================================================
+           STATE MANAGEMENT
+           ========================================================= */
+        let currentSubject = null;
+        let currentDifficulty = null;
+
+        // Quiz State
+        let questions = [];
+        let currentQIndex = 0;
+        let score = 0;
+        let userAnswers = []; // stores proper index, or -1 for skipped
+
+        let timerInterval = null;
+        const TIME_LIMIT = 20; // seconds per question
+        let timeLeft = TIME_LIMIT;
+
+        /* =========================================================
+           THEME & STREAK INIT
+           ========================================================= */
+        const rootElement = document.documentElement;
+
+        function initTheme() {
+            const saved = localStorage.getItem('btech_theme') || 'light';
+            rootElement.setAttribute('data-theme', saved);
+        }
+
+        // Sync with dashboard theme changes
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'btech_theme') {
+                initTheme();
+            }
+        });
+
+        // Also check periodically if storage event doesn't fire (some browsers/modes)
+        setInterval(initTheme, 1000);
+
+        function initStreak() {
+            // Simplified daily streak logic
+            let streak = parseInt(localStorage.getItem('quiz_streak') || '0');
+            const streakEl = document.getElementById('streakCount');
+            if (streakEl) {
+                streakEl.textContent = streak;
+            }
+        }
+
+        function incrementStreak() {
+            const today = new Date().toDateString();
+            const lastDate = localStorage.getItem('quiz_last_played');
+            let streak = parseInt(localStorage.getItem('quiz_streak') || '0');
+
+            if (lastDate !== today) {
+                streak++;
+                localStorage.setItem('quiz_streak', streak);
+                localStorage.setItem('quiz_last_played', today);
+                const streakEl = document.getElementById('streakCount');
+                if (streakEl) {
+                    streakEl.textContent = streak;
+                }
+            }
+        }
+
+        initTheme();
+        initStreak();
+
+        /* =========================================================
+           UI NAVIGATION FUNCTIONS
+           ========================================================= */
+        function switchView(viewId) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* 1. Render Subjects */
+        const subjectsGrid = document.getElementById('subjectsGrid');
+        subjectsData.forEach(sub => {
+            const card = document.createElement('div');
+            card.className = 'subject-card';
+            card.onclick = () => selectSubject(sub);
+            card.innerHTML = `
+                <div class="subject-icon">${sub.icon}</div>
+                <h3>${sub.title}</h3>
+                <p>${sub.desc}</p>
+                <div class="btn btn-primary" style="align-self:center; font-size:0.9rem; padding: 0.5rem 1rem;">Select Subject</div>
+            `;
+            subjectsGrid.appendChild(card);
+        });
+
+        /* 2. Select Subject */
+        function selectSubject(sub) {
+            currentSubject = sub;
+            document.getElementById('diffSubjectTitle').innerHTML = `${sub.icon} ${sub.title}`;
+            switchView('view-difficulty');
+        }
+
+        /* 3. Start Quiz */
+        function startQuiz(diff) {
+            currentDifficulty = diff;
+            questions = getQuizData(currentSubject.id, diff);
+
+            currentQIndex = 0;
+            score = 0;
+            userAnswers = [];
+
+            // Setup Header
+            document.getElementById('quizActiveIcon').textContent = currentSubject.icon;
+            document.getElementById('quizActiveSubject').textContent = currentSubject.title;
+            document.getElementById('quizActiveDiff').textContent = diff;
+
+            switchView('view-quiz');
+            loadQuestion();
+        }
+
+        /* =========================================================
+           QUIZ LOGIC
+           ========================================================= */
+        const qText = document.getElementById('questionText');
+        const optsGrid = document.getElementById('optionsGrid');
+        const btnNext = document.getElementById('btnNext');
+        const progressBar = document.getElementById('progressBar');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const qCurrent = document.getElementById('qCurrent');
+        const qTotal = document.getElementById('qTotal');
+
+        let selectedOptionIndex = -1;
+
+        function loadQuestion() {
+            clearInterval(timerInterval);
+            selectedOptionIndex = -1;
+            btnNext.disabled = true;
+
+            const q = questions[currentQIndex];
+
+            // Re-trigger card animation
+            const card = document.getElementById('questionCard');
+            card.style.animation = 'none';
+            card.offsetHeight; // trigger reflow
+            card.style.animation = 'fadeIn 0.5s ease forwards';
+
+            qCurrent.textContent = currentQIndex + 1;
+            qTotal.textContent = questions.length;
+            progressBar.style.width = `${((currentQIndex) / questions.length) * 100}%`;
+
+            qText.textContent = q.q;
+            optsGrid.innerHTML = '';
+
+            const letters = ['A', 'B', 'C', 'D'];
+            q.options.forEach((opt, idx) => {
+                const el = document.createElement('div');
+                el.className = 'option-item';
+                el.innerHTML = `<div class="option-letter">${letters[idx]}</div> <span>${opt}</span>`;
+                el.onclick = () => selectOption(idx, el);
+                optsGrid.appendChild(el);
+            });
+
+            startTimer();
+        }
+
+        function selectOption(idx, element) {
+            selectedOptionIndex = idx;
+            document.querySelectorAll('.option-item').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            btnNext.disabled = false;
+        }
+
+        function handleNext() {
+            if (selectedOptionIndex !== -1) {
+                userAnswers.push(selectedOptionIndex);
+                if (selectedOptionIndex === questions[currentQIndex].ans) score++;
+            }
+            proceed();
+        }
+
+        function handleSkip() {
+            userAnswers.push(-1);
+            proceed();
+        }
+
+        function proceed() {
+            currentQIndex++;
+            if (currentQIndex < questions.length) {
+                loadQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        /* TIMER LOGIC */
+        function startTimer() {
+            timeLeft = TIME_LIMIT;
+            updateTimerUI();
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerUI();
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleSkip(); // auto skip on timeout
+                }
+            }, 1000);
+        }
+
+        function updateTimerUI() {
+            const sec = timeLeft < 10 ? '0' + timeLeft : timeLeft;
+            timerDisplay.textContent = `00:${sec}`;
+            if (timeLeft <= 5) timerDisplay.style.color = 'var(--danger)';
+            else timerDisplay.style.color = 'var(--danger)'; // Keep consistent brand coloring or change
+        }
+
+        /* =========================================================
+           RESULTS LOGIC
+           ========================================================= */
+        function finishQuiz() {
+            clearInterval(timerInterval);
+            progressBar.style.width = '100%';
+            incrementStreak();
+
+            const total = questions.length;
+            const pct = Math.round((score / total) * 100);
+
+            // Build Stats
+            let wrongCount = 0;
+            let skipCount = 0;
+            userAnswers.forEach((ans, idx) => {
+                if (ans === -1) skipCount++;
+                else if (ans !== questions[idx].ans) wrongCount++;
+            });
+
+            document.getElementById('statCorrect').textContent = score;
+            document.getElementById('statWrong').textContent = wrongCount;
+            document.getElementById('statSkipped').textContent = skipCount;
+
+            // Animation for circle
+            const circle = document.getElementById('scoreCircle');
+            circle.style.setProperty('--score-pct', 0);
+            setTimeout(() => {
+                circle.style.transition = '--score-pct 1.5s ease-out';
+                circle.style.setProperty('--score-pct', pct);
+            }, 100);
+
+            document.getElementById('scoreText').innerHTML = `${score}<span>/ ${total}</span>`;
+
+            // Level Message
+            const lvlEl = document.getElementById('resultLevel');
+            const msgEl = document.getElementById('resultMsg');
+            if (pct >= 80) {
+                lvlEl.textContent = "Expert Mastery 🏆";
+                msgEl.textContent = "Outstanding performance! You know this inside out.";
+                triggerConfetti();
+            } else if (pct >= 50) {
+                lvlEl.textContent = "Solid Intermediate 👍";
+                msgEl.textContent = "Good job! A little more review and you'll be an expert.";
+            } else {
+                lvlEl.textContent = "Beginner Learner 📚";
+                msgEl.textContent = "Keep practicing! Every mistake is a learning opportunity.";
+            }
+
+            // Explanations
+            const expList = document.getElementById('explanationsList');
+            expList.innerHTML = '<h3>Review Answers</h3>';
+
+            questions.forEach((q, idx) => {
+                const uAns = userAnswers[idx];
+                const isCorrect = uAns === q.ans;
+                const isSkipped = uAns === -1;
+
+                const cssClass = isCorrect ? 'correct-ans' : 'wrong-ans';
+                let mark = isCorrect ? '✅' : (isSkipped ? '⏭️' : '❌');
+
+                const el = document.createElement('div');
+                el.className = `exp-item ${cssClass}`;
+                el.innerHTML = `
+                    <div class="exp-q"><span class="exp-mark">${mark}</span> Q: ${q.q}</div>
+                    <div class="exp-a">
+                        <strong>Correct Answer:</strong> ${q.options[q.ans]}<br>
+                        <span style="color:var(--text-muted); font-size:0.85rem; display:block; margin-top:0.4rem;">${q.exp}</span>
+                    </div>
+                `;
+                expList.appendChild(el);
+            });
+
+            switchView('view-results');
+        }
+
+        /* CONFETTI EFFECT */
+        function triggerConfetti() {
+            if (typeof confetti !== 'undefined') {
+                var duration = 3 * 1000;
+                var animationEnd = Date.now() + duration;
+                var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+                var interval = setInterval(function () {
+                    var timeLeft = animationEnd - Date.now();
+                    if (timeLeft <= 0) return clearInterval(interval);
+                    var particleCount = 50 * (timeLeft / duration);
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+                }, 250);
+            }
+        }
+        function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+        // CSS properties polyfill for purely animated radial variables
+        CSS.registerProperty && CSS.registerProperty({
+            name: '--score-pct',
+            syntax: '<number>',
+            inherits: false,
+            initialValue: 0,
+        });
+    </script>
+</body>
+
+</html>

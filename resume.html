@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Resume Analyzer | CareerPath</title>
+
+    <!-- PDF.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================================================ 
+           1. Design System & Theming
+           ============================================================ */
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary: #0f172a;
+            --accent: #10b981;
+            --accent-soft: #ecfdf5;
+            --danger: #ef4444;
+            --danger-soft: #fef2f2;
+            --warning: #f59e0b;
+            --warning-soft: #fffbeb;
+            --bg: #f8fafc;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --card-border: rgba(255, 255, 255, 0.4);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Dark Mode Integration (Sync with dashboard if btech_theme is dark) */
+        [data-theme="dark"] {
+            --bg: #0d0f1a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.05);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ============================================================ 
+           2. Global Styles & General Layout
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            line-height: 1.6;
+            transition: var(--transition);
+            overflow-x: hidden;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+
+        /* ============================================================ 
+           4. Application Container & Tool UI
+           ============================================================ */
+        main {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .analyzer-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 40px;
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary), #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            font-size: 1.05rem;
+        }
+
+        .form-section {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Career Select & Modernized Inputs */
+        select,
+        textarea,
+        input[type="file"] {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--card-border);
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        [data-theme="dark"] select,
+        [data-theme="dark"] textarea {
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        select:focus,
+        textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+        }
+
+        /* Custom File Upload Styling */
+        input[type="file"] {
+            padding: 20px;
+            border: 2px dashed var(--card-border);
+            cursor: pointer;
+            text-align: center;
+        }
+
+        input[type="file"]:hover {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.05);
+        }
+
+        textarea {
+            min-height: 180px;
+            resize: vertical;
+        }
+
+        /* OR Divider */
+        .divider {
+            position: relative;
+            text-align: center;
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--card-border);
+        }
+
+        /* Action Button */
+        .btn-analyze {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--primary), #6366f1);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+
+        .btn-analyze:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .btn-analyze:active {
+            transform: scale(0.98);
+        }
+
+        /* ============================================================ 
+           5. Results & Suggestion Cards
+           ============================================================ */
+        .result {
+            margin-top: 35px;
+            padding: 25px;
+            border-radius: var(--radius-md);
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+            border: 1px solid transparent;
+        }
+
+        .good {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: #065f46;
+        }
+
+        .improve {
+            background: var(--warning-soft);
+            border-color: var(--warning);
+            color: #92400e;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .score-val {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .suggestions-title {
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+            font-weight: 500;
+        }
+
+        li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            font-weight: 900;
+            opacity: 0.6;
+        }
+
+        /* Responsive Fixes */
+        @media (max-width: 600px) {
+            .analyzer-container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body data-theme="light">
+
+
+    <main>
+
+
+
+        <div class="form-section">
+            <!-- Career Selection -->
+            <div class="input-group">
+                <label>🎯 Selection Your Career Interest:</label>
+                <select id="interest">
+                    <option value="web">🌐 Web Development</option>
+                    <option value="data">📊 Data Science</option>
+                    <option value="ai">🤖 Artificial Intelligence</option>
+                    <option value="marketing">📈 Marketing</option>
+                    <option value="cyber">🛡️ Cyber Security</option>
+                    <option value="cloud">☁️ Cloud Computing</option>
+                    <option value="mobile">📲 App Development</option>
+                    <option value="design">🎨 UI/UX Design</option>
+                </select>
+            </div>
+
+            <!-- File Upload -->
+            <div class="input-group">
+                <label>📁 Upload Resume (.pdf or .txt):</label>
+                <input type="file" id="fileInput" accept=".pdf,.txt">
+            </div>
+
+            <!-- OR Divider -->
+            <div class="divider">OR</div>
+
+            <!-- Paste Resume -->
+            <div class="input-group">
+                <label>🖋️ Paste Resume Text:</label>
+                <textarea id="resume"
+                    placeholder="Copy and paste your resume content here for instant analysis..."></textarea>
+            </div>
+
+            <!-- Action Button -->
+            <button class="btn-analyze" onclick="analyzeResume()">Analyze Resume Now ⚡</button>
+
+            <!-- Results Section -->
+            <div id="output" class="result"></div>
+        </div>
+        </div>
+    </main>
+
+    <script>
+        // Theme Sync Logic
+        function syncTheme() {
+            const saved = localStorage.getItem('btech_theme') || 'light';
+            document.body.setAttribute('data-theme', saved);
+        }
+
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'btech_theme') syncTheme();
+        });
+
+        // Initialize on load
+        syncTheme();
+        // Periodical check for cross-frame consistency (important for iframes)
+        setInterval(syncTheme, 1000);
+
+        // Resume Parsing & Analysis Logic (STAYS THE SAME)
+        let resumeText = "";
+
+        async function extractPDFText(file) {
+            const reader = new FileReader();
+
+            reader.onload = async function () {
+                const typedarray = new Uint8Array(this.result);
+                const pdf = await pdfjsLib.getDocument(typedarray).promise;
+
+                let text = "";
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const content = await page.getTextContent();
+                    content.items.forEach(item => {
+                        text += item.str + " ";
+                    });
+                }
+                resumeText = text.toLowerCase();
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        document.getElementById("fileInput").addEventListener("change", function () {
+            const file = this.files[0];
+            if (!file) return;
+
+            if (file.type === "application/pdf") {
+                extractPDFText(file);
+            } else {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    resumeText = e.target.result.toLowerCase();
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        function analyzeResume() {
+            let pasted = document.getElementById("resume").value.toLowerCase();
+            let interest = document.getElementById("interest").value;
+
+            let text = resumeText || pasted;
+
+            if (!text) {
+                alert("Please upload or paste your resume.");
+                return;
+            }
+
+            let score = 0;
+            let suggestions = [];
+
+            // Score logic preserved
+            if (text.includes("project")) score += 20;
+            else suggestions.push("Add a strong projects section.");
+
+            if (text.includes("skill")) score += 15;
+            else suggestions.push("Include a clearer skills matrix.");
+
+            if (text.includes("internship") || text.includes("experience")) score += 20;
+            else suggestions.push("Focus on gaining internship/work experience.");
+
+            if (text.includes("education")) score += 10;
+            else suggestions.push("Include your academic background details.");
+
+            if (text.includes("achievement") || text.includes("award")) score += 10;
+            else suggestions.push("Mention notable achievements or awards.");
+
+            // Interest-based skills check logic preserved
+            if (interest === "web" && (text.includes("html") && text.includes("css") && text.includes("javascript"))) score += 15;
+            else if (interest === "web") suggestions.push("Upskill in core Web Tech: HTML, CSS, and JS.");
+
+            if (interest === "data" && (text.includes("python") && text.includes("pandas"))) score += 15;
+            else if (interest === "data") suggestions.push("Master Python and Pandas for data tasks.");
+
+            if (interest === "ai" && text.includes("machine learning")) score += 15;
+            else if (interest === "ai") suggestions.push("Add concrete ML/AI projects.");
+
+            if (interest === "cyber" && (text.includes("network security") || text.includes("ethical hacking"))) score += 15;
+            else if (interest === "cyber") suggestions.push("Focus on Network Security & Ethical Hacking.");
+
+            if (interest === "cloud" && (text.includes("aws") || text.includes("azure"))) score += 15;
+            else if (interest === "cloud") suggestions.push("Obtain AWS or Azure fundamentals.");
+
+            if (interest === "mobile" && (text.includes("android") || text.includes("flutter"))) score += 15;
+            else if (interest === "mobile") suggestions.push("Develop mobile applications using Flutter or Java.");
+
+            if (interest === "design" && (text.includes("figma") || text.includes("ui/ux"))) score += 15;
+            else if (interest === "design") suggestions.push("Create a portfolio using Figma or Adobe XD.");
+
+            if (text.includes("communication") || text.includes("teamwork")) score += 10;
+            else suggestions.push("Highlight soft skills like communication/teamwork.");
+
+            // Render Output with improved structure
+            let output = document.getElementById("output");
+            output.style.display = "block";
+            output.className = score >= 70 ? "result good" : "result improve";
+
+            output.innerHTML = `
+                <div class="score-row">
+                    <div class="score-val">Resume Score: ${score}/100</div>
+                    <div>${score >= 70 ? '✔️ High Match' : '⚠️ Action Needed'}</div>
+                </div>
+                <div class="suggestions-title">💡 Strategic Suggestions:</div>
+                <ul>${suggestions.map(s => `<li>${s}</li>`).join("")}</ul>
+            `;
+
+            // Auto scroll to results
+            output.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+    </script>
+</body>
+
+</html>
