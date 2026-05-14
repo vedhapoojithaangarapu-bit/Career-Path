@@ -1,3 +1,1 @@
-Career Path is an AI-powered career guidance and preparation platform designed to help students and early-career professionals plan, prepare, and achieve their career goals effectively. The platform provides personalized roadmaps, ATS-friendly resume support, interview preparation, skill tracking, and study planning tools in one place.
-
-It helps users identify their strengths, explore career opportunities, track learning progress, manage deadlines, and improve technical and professional skills through structured guidance and smart recommendations. Career Path aims to reduce confusion in career preparation by offering domain-specific resources, personalized learning paths, and productivity features that support consistent growth and better job opportunities.
+CAREER PATH
